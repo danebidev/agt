@@ -4,17 +4,20 @@ project(agt LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 add_subdirectory(thirdparty/dwhbll)
 
 find_package(PkgConfig REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(glm REQUIRED)
+find_package(glbinding REQUIRED)
 
 pkg_check_modules(WAYLAND REQUIRED wayland-client wayland-egl)
 pkg_check_modules(XKB REQUIRED xkbcommon)
 pkg_check_modules(WAYLAND_PROTOCOLS REQUIRED wayland-protocols)
 pkg_check_modules(EGL REQUIRED egl)
-pkg_check_modules(FREETYPE REQUIRED freetype2)
+# pkg_check_modules(FREETYPE REQUIRED freetype2)
 
 # for some reason using pkg_get_variable doesn't work
 execute_process(
@@ -53,24 +56,25 @@ endforeach()
 add_library(agt SHARED ${AGT_SOURCES})
 
 target_include_directories(agt PUBLIC
+    include
     thirdparty
     ${CMAKE_CURRENT_BINARY_DIR} # for wayland files
     ${WAYLAND_INCLUDE_DIRS}
     ${XKB_INCLUDE_DIRS}
     ${EGL_INCLUDE_DIRS}
     ${OPENGL_INCLUDE_DIRS}
-    ${FREETYPE_INCLUDE_DIRS}
+    # ${FREETYPE_INCLUDE_DIRS}
 )
 
 target_link_libraries(agt PUBLIC
-    glbinding
+    glbinding::glbinding
     dwhbll
     OpenGL::OpenGL
     glm::glm
     ${WAYLAND_LIBRARIES}
     ${XKB_LIBRARIES}
     ${EGL_LIBRARIES}
-    ${FREETYPE_LIBRARIES}
+    # ${FREETYPE_LIBRARIES}
 )
 
 set(AGT_TEST_SOURCES

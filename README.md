@@ -14,7 +14,7 @@ A Gui Toolkit
 cmake -B build . -DCMAKE_BUILD_TYPE=Debug
 cmake --build build
 ```
-Debug so you can report bugs ~~if~~ when you find them
+Debug so you can report bugs ~~when~~ if you find them
 
 # Copying
 
