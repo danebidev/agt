@@ -30,6 +30,10 @@ set(AGT_SOURCES
     src/wayland/display.cpp
     src/wayland/window.cpp
     src/wayland/input.cpp
+
+    src/gl/rendering.cpp
+    src/gl/shaders.cpp
+    src/gl/window.cpp
 )
 
 set(XMLS
