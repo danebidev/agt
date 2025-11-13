@@ -27,6 +27,9 @@ execute_process(
 )
 
 set(AGT_SOURCES
+    src/wayland/display.cpp
+    src/wayland/window.cpp
+    src/wayland/input.cpp
 )
 
 set(XMLS
