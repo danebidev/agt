@@ -1,35 +1,61 @@
 #pragma once
 
+#include "agt/gl/shaders.hpp"
+#include <glm/ext/matrix_float4x4.hpp>
 #include <glm/vec3.hpp>
+#include <span>
 #include <vector>
 
 namespace agt::draw {
 
 enum class CmdType {
-    /*
-     * The backend should clear the screen to the color set in `clear_color`.
-     * Equivalent to OpenGL's glClearColor followed by glClear(GL_COLOR_BUFFER_BIT)
-     */
-    CLEAR_SCREEN
-    // TODO: ...
+    TRIANGLES
+};
+
+struct Vertex {
+    glm::vec3 pos;
+    glm::vec3 color;
 };
 
 struct DrawCmd {
-    // Depending on the value of type, various other fields will be set
     CmdType type;
-    
-    glm::vec3 clear_color;
-    // TODO: ...
+
+    size_t count;
+    size_t first_index;
+
+    // Index into DrawCtx::shaders
+    uint16_t shader_program;
 };
 
-// Contains cmd_n commands that have to be executed in
-// the order they are found in the cmds vector.
-// The backend must not modify this
-class DrawList {
+/*
+ * Contains all information necessary to draw a frame.
+ *
+ * CMDS contains all the draw commands to be executed 
+ * in the order they appear in.
+ * Other fields contain extra information that can be
+ * used by the specific commands.
+ *
+ * The UI lib should return a const reference to this, so only
+ * CMDS can be modified, since it gets recreated on each frame
+ */
+class DrawCtx {
 public:
-    std::vector<DrawCmd> cmds;
+    mutable std::vector<DrawCmd> cmds;
+    std::vector<gl::Shader> shaders;
 
-    void add_clear(glm::vec3 color);
+    // The backend should clear the screen with
+    // this color at start of every frame
+    glm::vec3 clear_color; 
+
+    std::vector<Vertex> vertices;
+    std::vector<uint16_t> indices;
+
+    DrawCtx(glm::vec2 size);
+    
+    void update_proj(glm::vec2 size);
+    void set_clear_color(glm::vec3 color);
+
+    void add_triangle(std::span<Vertex> vertices);
 };
 
 } // namespace agt::draw

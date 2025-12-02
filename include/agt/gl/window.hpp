@@ -18,7 +18,10 @@ private:
     EGLSurface egl_surface;
     uint32_t last_frame_time;
 
-    const draw::DrawList* draw_list;
+    const draw::DrawCtx* draw_ctx;
+    // gl::GLHandle<GLObject::VAO> vao;
+    // gl::GLHandle<GLObject::VBO> vbo;
+    // gl::GLHandle<GLObject::EBO> ebo;
 
     void frame(uint32_t diff_time);
 
@@ -27,7 +30,7 @@ public:
     ~Window();
 
     void make_current();
-    void set_draw_list(const draw::DrawList& list) { draw_list = &list; }
+    void set_draw_ctx(const draw::DrawCtx& ctx) { draw_ctx = &ctx; }
 };
 
 } // namespace agt::gl

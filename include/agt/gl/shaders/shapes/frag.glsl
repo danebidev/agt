@@ -1,9 +1,10 @@
 #version 330 core
 
-uniform vec4 color;
-
+in vec3 color;
 out vec4 fragColor;
 
+uniform mat4 proj;
+
 void main() {
-    fragColor = color;
+    fragColor = vec4(color, 1.0);
 }

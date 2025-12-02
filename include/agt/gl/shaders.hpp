@@ -24,12 +24,14 @@ public:
     Shader &operator=(Shader &&other) {
         if(this != &other) {
             other.release();
+            shader_prog = other.shader_prog;
+            other.shader_prog = 0;
         }
         return *this;
     }
 
-    ::gl::GLuint get() { return shader_prog; }
-    void use();
+    ::gl::GLuint get() const { return shader_prog; }
+    void use() const;
 };
 
 #pragma clang diagnostic push
@@ -37,10 +39,12 @@ public:
 
 inline const ::gl::GLchar shapesVertSource[] = {
     #embed "shaders/shapes/vert.glsl"
+    , '\0'
 };
 
 inline const ::gl::GLchar shapesFragSource[] = {
     #embed "shaders/shapes/frag.glsl"
+    , '\0'
 };
 
 #pragma clang diagnostic pop

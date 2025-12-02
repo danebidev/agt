@@ -11,7 +11,7 @@ using namespace ::gl;
 #ifndef NDEBUG
 void gl_debug(GLenum source, GLenum type, GLuint id, GLenum severity,
                      GLsizei length, const GLchar* message, const void* userParam) {
-    dwhbll::console::debug("GLDEBUG {} {} {}", static_cast<uint>(type),
+    dwhbll::console::error("GLDEBUG {} {} {}", static_cast<uint>(type),
                            static_cast<uint>(severity), message);
 }
 #endif
@@ -40,8 +40,8 @@ Renderer::Renderer(wayland::Display& display) {
     eglChooseConfig(egl_display, attribs, &egl_config, 1, &num_config);
 
     EGLint ctx_attribs[] = {
-        EGL_CONTEXT_MAJOR_VERSION, 3,
-        EGL_CONTEXT_MINOR_VERSION, 3,
+        EGL_CONTEXT_MAJOR_VERSION, 4,
+        EGL_CONTEXT_MINOR_VERSION, 6,
         EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
 #ifndef NDEBUG
         EGL_CONTEXT_OPENGL_DEBUG, EGL_TRUE,

@@ -1,8 +1,8 @@
 #include <agt/gl/shaders.hpp>
 
+#include <dwhbll/console/Logging.h>
 #include <dwhbll/console/debug.hpp>
 #include <glbinding/gl/gl.h>
-#include <dwhbll/utils/utils.hpp>
 
 using namespace gl;
 
@@ -41,9 +41,9 @@ Shader::Shader(std::string_view vertex_shader, std::string_view fragment_shader)
     }
 
     shader_prog = glCreateProgram();
-    // if(!shader_prog)
-    //     dwhbll::debug::panic("Failed to create shader program: {}", 
-    //                          dwhbll::utils::enum_to_string(glGetError()));
+    if(!shader_prog)
+        dwhbll::debug::panic("Failed to create shader program: {}", 
+                             static_cast<uint>(glGetError()));
 
     glAttachShader(shader_prog, vertex);
     glAttachShader(shader_prog, fragment);
@@ -63,7 +63,7 @@ Shader::~Shader() {
     release();
 }
 
-void Shader::use() {
+void Shader::use() const {
     ASSERT(shader_prog != 0);
     glUseProgram(shader_prog);
 }

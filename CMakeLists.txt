@@ -34,6 +34,9 @@ set(AGT_SOURCES
     src/gl/rendering.cpp
     src/gl/shaders.cpp
     src/gl/window.cpp
+
+    src/ui/ui.cpp
+    src/ui/draw.cpp
 )
 
 set(XMLS
