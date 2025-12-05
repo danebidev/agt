@@ -19,9 +19,9 @@ private:
     uint32_t last_frame_time;
 
     const draw::DrawCtx* draw_ctx;
-    // gl::GLHandle<GLObject::VAO> vao;
-    // gl::GLHandle<GLObject::VBO> vbo;
-    // gl::GLHandle<GLObject::EBO> ebo;
+    ::gl::GLuint vao;
+    ::gl::GLuint vbo;
+    ::gl::GLuint ebo;
 
     void frame(uint32_t diff_time);
 

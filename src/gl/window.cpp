@@ -17,21 +17,7 @@ void Window::frame(uint32_t time_diff) {
 
     glViewport(0, 0, wl_window.current.width, wl_window.current.height);
 
-    GLuint vao = 0, vbo = 0, ebo = 0;
-    glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
-
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                          (void*) sizeof(glm::vec3));
-    glEnableVertexAttribArray(1);
-
-    glGenBuffers(1, &ebo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 
     glBufferData(GL_ARRAY_BUFFER, draw_ctx->vertices.size() * sizeof(Vertex),
                  draw_ctx->vertices.data(), GL_DYNAMIC_DRAW);
@@ -61,10 +47,6 @@ void Window::frame(uint32_t time_diff) {
     }
 
     eglSwapBuffers(renderer.display(), egl_surface);
-
-    ::gl::glDeleteBuffers(1, &vbo);
-    ::gl::glDeleteBuffers(1, &ebo);
-    ::gl::glDeleteVertexArrays(1, &vao);
 }
 
 Window::Window(Renderer& rendering_, wayland::Window& window_) 
@@ -93,12 +75,34 @@ Window::Window(Renderer& rendering_, wayland::Window& window_)
 
     make_current();
 
-    // ::gl::glEnable(GL_BLEND);
-    // ::gl::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    // ::gl::glEnable(GL_DEPTH_TEST);
+    ::gl::glEnable(GL_BLEND);
+    ::gl::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    ::gl::glEnable(GL_DEPTH_TEST);
+
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                          (void*) sizeof(glm::vec3));
+    glEnableVertexAttribArray(1);
+
+    glGenBuffers(1, &ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+
+    glBindVertexArray(0);
 }
 
 Window::~Window() {
+    ::gl::glDeleteBuffers(1, &ebo);
+    ::gl::glDeleteBuffers(1, &vbo);
+    ::gl::glDeleteVertexArrays(1, &vao);
+
+    renderer.make_current(EGL_NO_SURFACE);
     eglDestroySurface(renderer.display(), egl_surface);
     wl_egl_window_destroy(egl_window);
 }
