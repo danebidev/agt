@@ -5,7 +5,6 @@
 #include <glm/glm.hpp>
 
 #include "../wayland/display.hpp"
-#include "gl.hpp"
 
 namespace agt::gl {
 

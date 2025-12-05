@@ -3,7 +3,6 @@
 #include <agt/wayland/window.hpp>
 #include <agt/wayland/input.hpp>
 #include <agt/gl/rendering.hpp>
-#include <agt/gl/gl.hpp>
 #include <agt/gl/window.hpp>
 #include <agt/gl/shaders.hpp>
 
