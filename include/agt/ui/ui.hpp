@@ -5,9 +5,13 @@
 #include <optional>
 #include <vector>
 
+#include <agt/ui/draw.hpp>
+
 namespace agt::ui {
 
-class LayoutElement {
+// Must be extended to make new UI elements.
+// Extended classes should override compute_layout_internal
+class UIElement {
 protected:
     // Populated when computing the layout
     std::optional<uint32_t> width, height;
@@ -15,9 +19,6 @@ protected:
 
     bool dirty = true;
 
-    // If you are creating a widget, override this
-    // If you are instead creating a layout element with other
-    // elements inside you might want to override compute_layout
     virtual void compute_layout_internal() {};
 
 public:
@@ -33,11 +34,46 @@ public:
     }
 };
 
-typedef std::shared_ptr<LayoutElement> Element;
+typedef std::shared_ptr<UIElement> Element;
 
-// TODO: Mainly for testing. Remove
-class Rectangle : public LayoutElement {
+class LayoutElement : public UIElement {
+protected:
+    std::vector<Element> elements;
+
+public:
+    void compute_layout() override {
+        for(auto elem : elements) {
+            elem->compute_layout();
+        }
+    }
+
+    void add(const Element& element) {
+        elements.push_back(element);
+    }
+
+    void remove(size_t ind) {
+        elements.erase(elements.begin() + ind);
+    }
+
+    // TODO: add all container-related methods
+    // Maybe just expose the elements vector?
+};
+
+class UIRoot : public UIElement {
 private:
+    Element element;
+
+public:
+    void set_root(Element elem) {
+        element = elem;
+    }
+
+    const draw::DrawCtx& compute_draw_ctx();
+};
+
+// TODO: Mainly for testing. Remove later
+class Rectangle : public UIElement {
+protected:
     void compute_layout_internal() override {};
 
 public:
@@ -53,26 +89,8 @@ public:
 };
 
 class HBox : public LayoutElement {
-private:
-    std::vector<Element> elements;
-
-public:
-    void compute_layout() override {
-        for(auto& element : elements) {
-            element->compute_layout();
-        }
-    }
-
-    void add(Element& element) {
-        elements.push_back(element);
-    }
-
-    void remove(size_t ind) {
-        elements.erase(elements.begin() + ind);
-    }
-
-    // TODO: add all container-related methods
-    // Maybe just expose the elements vector?
+protected:
+    void compute_layout_internal() override;
 };
 
 }

@@ -44,9 +44,6 @@ struct DrawCmd {
  * in the order they appear in.
  * Other fields contain extra information that can be
  * used by the specific commands.
- *
- * The UI lib should return a const reference to this, so only
- * CMDS can be modified, since it gets recreated on each frame
  */
 class DrawCtx {
     // TODO: remove
