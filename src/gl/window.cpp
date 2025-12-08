@@ -19,10 +19,12 @@ void Window::frame(uint32_t time_diff) {
 
     glBindVertexArray(vao);
 
-    glBufferData(GL_ARRAY_BUFFER, draw_ctx->vertices.size() * sizeof(Vertex),
-                 draw_ctx->vertices.data(), GL_DYNAMIC_DRAW);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, draw_ctx->indices.size() * sizeof(uint16_t),
-                 draw_ctx->indices.data(), GL_DYNAMIC_DRAW);
+    if(draw_ctx->vertices_changed)
+        glBufferData(GL_ARRAY_BUFFER, draw_ctx->vertices.size() * sizeof(Vertex),
+                     draw_ctx->vertices.data(), GL_DYNAMIC_DRAW);
+    if(draw_ctx->indices_changed)
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, draw_ctx->indices.size() * sizeof(uint16_t),
+                     draw_ctx->indices.data(), GL_DYNAMIC_DRAW);
 
     glClearColor(draw_ctx->clear_color.r, draw_ctx->clear_color.g,
                        draw_ctx->clear_color.b, 1.0f);
@@ -34,10 +36,6 @@ void Window::frame(uint32_t time_diff) {
         case CmdType::TRIANGLES: {
             auto &shader = draw_ctx->shaders[cmd.shader_program];
             shader.use();
-
-            // GLint projLoc = ::gl::glGetUniformLocation(shader.get(), "proj");
-            // glm::mat4 id = glm::mat4(1.0f);
-            // ::gl::glUniformMatrix4fv(projLoc, 1, GL_FALSE, &id[0][0]);
 
             glDrawElements(GL_TRIANGLES, cmd.count, GL_UNSIGNED_SHORT,
                            (void*) (cmd.first_index * sizeof(uint16_t)));

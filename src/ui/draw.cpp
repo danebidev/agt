@@ -1,5 +1,5 @@
-#include "dwhbll/console/debug.hpp"
 #include <agt/ui/draw.hpp>
+#include <dwhbll/console/debug.hpp>
 
 #include <glm/matrix.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -8,9 +8,16 @@
 
 namespace agt::draw {
 
-DrawCtx::DrawCtx(glm::vec2 size) {
+DrawCtx::DrawCtx(glm::vec2 size)
+    : vertices_changed(true),
+      indices_changed(true)  {
     shaders.emplace_back(gl::shapesVertSource, gl::shapesFragSource);
     update_proj(size);
+}
+
+void DrawCtx::finish_frame() {
+    vertices_changed = false;
+    indices_changed = false;
 }
 
 void DrawCtx::update_proj(glm::vec2 size) {
