@@ -8,11 +8,12 @@
 
 namespace agt::draw {
 
-DrawCtx::DrawCtx(glm::vec2 size)
+DrawCtx::DrawCtx(glm::vec2 size_)
     : vertices_changed(true),
       indices_changed(true)  {
     shaders.emplace_back(gl::shapesVertSource, gl::shapesFragSource);
-    update_proj(size);
+
+    update_proj(size_);
 }
 
 void DrawCtx::finish_frame() {
@@ -20,9 +21,12 @@ void DrawCtx::finish_frame() {
     indices_changed = false;
 }
 
-void DrawCtx::update_proj(glm::vec2 size) {
-    glm::mat4 proj = glm::ortho(0.0f, size.x, 0.0f, size.y, 0.0f, 100.0f);
+void DrawCtx::update_proj(glm::vec2 size_) {
+    if(size == size_)
+        return;
+    size = size_;
 
+    glm::mat4 proj = glm::ortho(0.0f, size.x, 0.0f, size.y, 0.0f, 100.0f);
     for(auto &shader : shaders) {
         shader.use();
         int projLocation = ::gl::glGetUniformLocation(shader.get(), "proj");

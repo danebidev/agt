@@ -46,10 +46,10 @@ struct DrawCmd {
  * used by the specific commands.
  */
 class DrawCtx {
-    // TODO: remove
+    // TODO: remove (or do it in a better way)
     friend int ::main();
 public:
-    mutable std::vector<DrawCmd> cmds;
+    std::vector<DrawCmd> cmds;
     std::vector<gl::Shader> shaders;
     std::vector<Texture> textures;
 
@@ -64,13 +64,14 @@ public:
     std::vector<uint16_t> indices;
 
     void finish_frame();
+    void update_proj(glm::vec2 size);
 
     DrawCtx(glm::vec2 size);
 
 private:
-    void update_proj(glm::vec2 size);
-    void set_clear_color(glm::vec3 color);
+    glm::vec2 size;
 
+    void set_clear_color(glm::vec3 color);
     void add_triangle(std::span<Vertex> vertices);
 };
 

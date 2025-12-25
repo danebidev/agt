@@ -1,5 +1,6 @@
 #pragma once
 
+#include "agt/ui/ui.hpp"
 #include <wayland-egl-core.h>
 #include <EGL/egl.h>
 
@@ -13,12 +14,12 @@ class Window {
 private:
     Renderer& renderer;
     wayland::Window& wl_window;
+    ui::UIRoot& ui_root;
 
     wl_egl_window* egl_window;
     EGLSurface egl_surface;
     uint32_t last_frame_time;
 
-    const draw::DrawCtx* draw_ctx;
     ::gl::GLuint vao;
     ::gl::GLuint vbo;
     ::gl::GLuint ebo;
@@ -26,11 +27,10 @@ private:
     void frame(uint32_t diff_time);
 
 public:
-    Window(Renderer& rendering, wayland::Window& window);
+    Window(Renderer& rendering, wayland::Window& window, ui::UIRoot& ui_root);
     ~Window();
 
     void make_current();
-    void set_draw_ctx(const draw::DrawCtx& ctx) { draw_ctx = &ctx; }
 };
 
 } // namespace agt::gl

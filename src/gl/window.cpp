@@ -18,6 +18,7 @@ void Window::frame(uint32_t time_diff) {
     glViewport(0, 0, wl_window.current.width, wl_window.current.height);
 
     glBindVertexArray(vao);
+    const DrawCtx* draw_ctx = ui_root.compute_layout();
 
     if(draw_ctx->vertices_changed)
         glBufferData(GL_ARRAY_BUFFER, draw_ctx->vertices.size() * sizeof(Vertex),
@@ -33,7 +34,7 @@ void Window::frame(uint32_t time_diff) {
 
     for(auto cmd : draw_ctx->cmds) {
         switch(cmd.type) {
-        case CmdType::TRIANGLES: {
+        case CmdType::TRIANGLES:
             auto &shader = draw_ctx->shaders[cmd.shader_program];
             shader.use();
 
@@ -41,15 +42,15 @@ void Window::frame(uint32_t time_diff) {
                            (void*) (cmd.first_index * sizeof(uint16_t)));
             break;
         }
-        }
     }
 
     eglSwapBuffers(renderer.display(), egl_surface);
 }
 
-Window::Window(Renderer& rendering_, wayland::Window& window_) 
+Window::Window(Renderer& rendering_, wayland::Window& window_, ui::UIRoot& ui_root_) 
     : renderer(rendering_),
-      wl_window(window_) {
+      wl_window(window_),
+      ui_root(ui_root_) {
     egl_window = wl_egl_window_create(wl_window.wl_surface.get(),
                                       wl_window.current.width, wl_window.current.height);
     egl_surface = eglCreateWindowSurface(renderer.display(), renderer.config(), 
@@ -67,6 +68,7 @@ Window::Window(Renderer& rendering_, wayland::Window& window_)
     });
 
     wl_window.resize.subscribe([&](uint32_t w, uint32_t h) {
+        ui_root.set_size(w, h);
         wl_egl_window_resize(egl_window, w, h, 0, 0);
         // wl_window.frame(0);
     });

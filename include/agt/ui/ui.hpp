@@ -2,95 +2,111 @@
 
 #include <cstdint>
 #include <memory>
-#include <optional>
 #include <vector>
 
 #include <agt/ui/draw.hpp>
 
 namespace agt::ui {
 
+struct size {
+    uint32_t width;
+    uint32_t height;
+
+    friend size operator+(size lhs, const size &rhs) {
+        lhs.width += rhs.width;
+        lhs.height += rhs.height;
+        return lhs;
+    }
+
+    friend size operator-(size lhs, const size &rhs) {
+        lhs.width -= rhs.width;
+        lhs.height -= rhs.height;
+        return lhs;
+    }
+
+    operator glm::vec2() {
+        return { width, height };
+    }
+};
+
+struct rect {
+    // `z` is for depth testing later during rendering
+    uint32_t x, y, z;
+    size rect_size;
+};
+
 // Must be extended to make new UI elements.
-// Extended classes should override compute_layout_internal
 class UIElement {
 protected:
-    // Populated when computing the layout
-    std::optional<uint32_t> width, height;
-    std::optional<uint32_t> x, y;
-
-    bool dirty = true;
-
-    virtual void compute_layout_internal() {};
+    rect element_rect;
 
 public:
-    // If not set, these are ignored when computing the layout
-    std::optional<uint32_t> minimum_width, minimum_height;
-    std::optional<uint32_t> maximum_width, maximum_height;
+    // Returns the preferred size of the UI component
+    virtual size measure(size constraint) = 0;
 
-    virtual void compute_layout() {
-        if(!dirty)
-            return;
-        dirty = false;
-        compute_layout_internal();
+    // Indicates to the component its computed position
+    virtual void layout(rect rect) {
+        element_rect = rect;
     }
 };
 
 typedef std::shared_ptr<UIElement> Element;
 
-class LayoutElement : public UIElement {
-protected:
-    std::vector<Element> elements;
-
-public:
-    void compute_layout() override {
-        for(auto elem : elements) {
-            elem->compute_layout();
-        }
-    }
-
-    void add(const Element& element) {
-        elements.push_back(element);
-    }
-
-    void remove(size_t ind) {
-        elements.erase(elements.begin() + ind);
-    }
-
-    // TODO: add all container-related methods
-    // Maybe just expose the elements vector?
-};
-
 class UIRoot : public UIElement {
 private:
     Element element;
+    draw::DrawCtx* draw_ctx = nullptr;
 
-public:
-    void set_root(Element elem) {
-        element = elem;
+    size root_size;
+
+    size measure(size constraint) override {
+        return element->measure(constraint);
     }
 
-    const draw::DrawCtx& compute_draw_ctx();
+    void layout(rect rect) override {
+        element->layout(rect);
+    }
+
+public:
+    glm::vec3 color;
+
+    UIRoot(Element elem, size size) 
+        : element(elem),
+          root_size(size) {}
+
+    void set_root(Element element_) {
+        element = element_;
+    }
+
+    void set_size(uint32_t width, uint32_t height) {
+        root_size = { width, height };
+        if(draw_ctx)
+            draw_ctx->update_proj(root_size);
+    }
+
+    const draw::DrawCtx* compute_layout();
 };
 
 // TODO: Mainly for testing. Remove later
 class Rectangle : public UIElement {
-protected:
-    void compute_layout_internal() override {};
+    size rect_size;
 
 public:
-    Rectangle(uint32_t width_, uint32_t height_) {
-        width = width_;
-        minimum_width = width_;
-        maximum_width = width_;
+    Rectangle(uint32_t width, uint32_t height) {
+        rect_size = { width, height };
+    }
 
-        height = height_;
-        minimum_height = height_;
-        maximum_height = height_;
+    size measure(size constraint) override {
+        return rect_size;
     }
 };
 
-class HBox : public LayoutElement {
-protected:
-    void compute_layout_internal() override;
+class HBox : public UIElement {
+public:
+    std::vector<Element> elements;
+    
+    size measure(size constraint) override;
+    void layout(rect rect) override; 
 };
 
 }
