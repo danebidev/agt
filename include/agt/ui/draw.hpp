@@ -6,9 +6,6 @@
 #include <span>
 #include <vector>
 
-// TODO: remove
-int main();
-
 namespace agt::draw {
 
 enum class CmdType {
@@ -46,9 +43,6 @@ struct DrawCmd {
  * used by the specific commands.
  */
 struct DrawCtx {
-    // TODO: remove (or do it in a better way)
-    friend int ::main();
-
 public:
     glm::vec2 size;
 
