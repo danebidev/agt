@@ -28,7 +28,8 @@ int main() {
     agt::gl::Renderer gl_renderer(display);
 
     std::shared_ptr<Rectangle> rect = std::make_shared<Rectangle>(150, 75);
-    UIRoot ui_root(rect, { 300, 150 });
+    UIRoot ui_root(rect, { wayland_window.current.width,
+                           wayland_window.current.height });
     ui_root.color = { 0.3, 0.4, 0.5 };
     agt::gl::Window gl_window(gl_renderer, wayland_window, ui_root);
 

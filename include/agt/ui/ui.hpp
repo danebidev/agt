@@ -3,14 +3,15 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <glm/vec2.hpp>
 
 #include <agt/ui/draw.hpp>
 
 namespace agt::ui {
 
 struct size {
-    uint32_t width;
-    uint32_t height;
+    uint32_t width = 0;
+    uint32_t height = 0;
 
     friend size operator+(size lhs, const size &rhs) {
         lhs.width += rhs.width;
@@ -24,7 +25,7 @@ struct size {
         return lhs;
     }
 
-    operator glm::vec2() {
+    operator glm::vec2() const {
         return { width, height };
     }
 };
@@ -32,7 +33,7 @@ struct size {
 struct rect {
     // `z` is for depth testing later during rendering
     uint32_t x, y, z;
-    size rect_size;
+    struct size size;
 };
 
 // Must be extended to make new UI elements.
@@ -42,29 +43,39 @@ protected:
 
 public:
     // Returns the preferred size of the UI component
-    virtual size measure(size constraint) = 0;
+    virtual size measure(size constraint) const = 0;
 
     // Indicates to the component its computed position
     virtual void layout(rect rect) {
         element_rect = rect;
     }
+
+    virtual void paint(draw::DrawCtx &draw_ctx) const = 0;
+
+    virtual ~UIElement() = default;
 };
 
-typedef std::shared_ptr<UIElement> Element;
+using Element = std::shared_ptr<UIElement>;
 
 class UIRoot : public UIElement {
 private:
     Element element;
-    draw::DrawCtx* draw_ctx = nullptr;
+    std::unique_ptr<draw::DrawCtx> draw_ctx;
 
     size root_size;
 
-    size measure(size constraint) override {
+protected:
+    // These 3 are not really meant to be used by any other element
+    size measure(size constraint) const override {
         return element->measure(constraint);
     }
 
     void layout(rect rect) override {
         element->layout(rect);
+    }
+
+    void paint(draw::DrawCtx& ctx) const override {
+        element->paint(*draw_ctx);
     }
 
 public:
@@ -84,7 +95,7 @@ public:
             draw_ctx->update_proj(root_size);
     }
 
-    const draw::DrawCtx* compute_layout();
+    const draw::DrawCtx& compute_layout();
 };
 
 // TODO: Mainly for testing. Remove later
@@ -96,16 +107,18 @@ public:
         rect_size = { width, height };
     }
 
-    size measure(size constraint) override {
+    size measure(size constraint) const override {
         return rect_size;
     }
+
+    void paint(draw::DrawCtx& ctx) const override;
 };
 
 class HBox : public UIElement {
 public:
     std::vector<Element> elements;
     
-    size measure(size constraint) override;
+    size measure(size constraint) const override;
     void layout(rect rect) override; 
 };
 

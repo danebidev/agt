@@ -21,7 +21,7 @@ struct Vertex {
 };
 
 struct Texture {
-    uint id;
+    uint32_t id;
     bool updated;
 };
 
@@ -45,10 +45,13 @@ struct DrawCmd {
  * Other fields contain extra information that can be
  * used by the specific commands.
  */
-class DrawCtx {
+struct DrawCtx {
     // TODO: remove (or do it in a better way)
     friend int ::main();
+
 public:
+    glm::vec2 size;
+
     std::vector<DrawCmd> cmds;
     std::vector<gl::Shader> shaders;
     std::vector<Texture> textures;
@@ -68,11 +71,10 @@ public:
 
     DrawCtx(glm::vec2 size);
 
-private:
-    glm::vec2 size;
-
     void set_clear_color(glm::vec3 color);
-    void add_triangle(std::span<Vertex> vertices);
+
+    void add_triangle(const Vertex& v1, const Vertex& v2, const Vertex& v3);
+    void add_rect(glm::vec2 pos, glm::vec2 size, glm::vec3 color);
 };
 
 } // namespace agt::draw

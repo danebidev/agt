@@ -18,24 +18,24 @@ void Window::frame(uint32_t time_diff) {
     glViewport(0, 0, wl_window.current.width, wl_window.current.height);
 
     glBindVertexArray(vao);
-    const DrawCtx* draw_ctx = ui_root.compute_layout();
+    const DrawCtx& draw_ctx = ui_root.compute_layout();
 
-    if(draw_ctx->vertices_changed)
-        glBufferData(GL_ARRAY_BUFFER, draw_ctx->vertices.size() * sizeof(Vertex),
-                     draw_ctx->vertices.data(), GL_DYNAMIC_DRAW);
-    if(draw_ctx->indices_changed)
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, draw_ctx->indices.size() * sizeof(uint16_t),
-                     draw_ctx->indices.data(), GL_DYNAMIC_DRAW);
+    if(draw_ctx.vertices_changed)
+        glBufferData(GL_ARRAY_BUFFER, draw_ctx.vertices.size() * sizeof(Vertex),
+                     draw_ctx.vertices.data(), GL_DYNAMIC_DRAW);
+    if(draw_ctx.indices_changed)
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, draw_ctx.indices.size() * sizeof(uint16_t),
+                     draw_ctx.indices.data(), GL_DYNAMIC_DRAW);
 
-    glClearColor(draw_ctx->clear_color.r, draw_ctx->clear_color.g,
-                       draw_ctx->clear_color.b, 1.0f);
+    glClearColor(draw_ctx.clear_color.r, draw_ctx.clear_color.g,
+                       draw_ctx.clear_color.b, 1.0f);
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    for(auto cmd : draw_ctx->cmds) {
+    for(auto cmd : draw_ctx.cmds) {
         switch(cmd.type) {
         case CmdType::TRIANGLES:
-            auto &shader = draw_ctx->shaders[cmd.shader_program];
+            auto &shader = draw_ctx.shaders[cmd.shader_program];
             shader.use();
 
             glDrawElements(GL_TRIANGLES, cmd.count, GL_UNSIGNED_SHORT,
