@@ -19,6 +19,7 @@ public:
     ~Renderer();
 
     void make_current(EGLSurface surface);
+    void unset_surface();
 
     EGLDisplay display() { return egl_display; };
     EGLConfig config() { return egl_config; };

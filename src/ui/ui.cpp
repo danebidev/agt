@@ -6,6 +6,9 @@ const draw::DrawCtx& UIRoot::compute_layout() {
     if(!draw_ctx)
         draw_ctx = std::make_unique<draw::DrawCtx>(root_size);
 
+    draw_ctx->cmds.clear();
+    draw_ctx->indices.clear();
+    draw_ctx->vertices.clear();
     draw_ctx->clear_color = color;
 
     size measured = measure(root_size);

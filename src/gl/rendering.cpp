@@ -68,4 +68,8 @@ void Renderer::make_current(EGLSurface surface) {
     eglMakeCurrent(egl_display, surface, surface, egl_context);
 }
 
+void Renderer::unset_surface() {
+    eglMakeCurrent(egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, egl_context);
+}
+
 } // namespace agt::gl

@@ -54,13 +54,13 @@ public:
     // this color at start of every frame
     glm::vec3 clear_color; 
 
-    bool vertices_changed;
+    mutable bool vertices_changed;
     std::vector<Vertex> vertices;
 
-    bool indices_changed;
+    mutable bool indices_changed;
     std::vector<uint16_t> indices;
 
-    void finish_frame();
+    void finish_frame() const;
     void update_proj(glm::vec2 size);
 
     DrawCtx(glm::vec2 size);

@@ -13,7 +13,6 @@ using namespace draw;
 
 void Window::frame(uint32_t time_diff) {
     make_current();
-    eglSwapInterval(renderer.display(), 0);
 
     glViewport(0, 0, wl_window.current.width, wl_window.current.height);
 
@@ -44,6 +43,7 @@ void Window::frame(uint32_t time_diff) {
         }
     }
 
+    draw_ctx.finish_frame();
     eglSwapBuffers(renderer.display(), egl_surface);
 }
 
@@ -74,6 +74,7 @@ Window::Window(Renderer& rendering_, wayland::Window& window_, ui::UIRoot& ui_ro
     });
 
     make_current();
+    eglSwapInterval(renderer.display(), 0);
 
     ::gl::glEnable(GL_BLEND);
     ::gl::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -102,7 +103,7 @@ Window::~Window() {
     ::gl::glDeleteBuffers(1, &vbo);
     ::gl::glDeleteVertexArrays(1, &vao);
 
-    renderer.make_current(EGL_NO_SURFACE);
+    renderer.unset_surface();
     eglDestroySurface(renderer.display(), egl_surface);
     wl_egl_window_destroy(egl_window);
 }
