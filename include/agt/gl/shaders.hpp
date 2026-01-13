@@ -38,12 +38,12 @@ public:
 #pragma clang diagnostic ignored "-Wc23-extensions"
 
 inline const ::gl::GLchar shapesVertSource[] = {
-    #embed "shaders/shapes/vert.glsl"
+    #embed "shaders/vert.glsl"
     , '\0'
 };
 
 inline const ::gl::GLchar shapesFragSource[] = {
-    #embed "shaders/shapes/frag.glsl"
+    #embed "shaders/frag.glsl"
     , '\0'
 };
 
