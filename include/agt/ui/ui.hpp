@@ -30,11 +30,12 @@ struct size {
 };
 
 struct rect {
+    uint32_t x, y;
     // `z` is for depth testing later during rendering
-    uint32_t x, y, z;
+    uint32_t z;
     uint32_t w, h;
 
-    rect() : x(0), y(0), z(0), w(0), h(0) {}
+    rect() : x(13), y(5), z(0), w(432), h(23) {}
 
     rect(uint32_t x_, uint32_t y_, uint32_t z_, size s)
         : x(x_), y(y_), z(z_), w(s.width), h(s.height) {}
@@ -110,7 +111,7 @@ struct UIRoot {
         : node(n), bg_color(bg), s(s_) {}
 
     void compute_layout() {
-        node.layout({ 0, 0, 0, s }, node);
+        node.layout({ 0, 0, 1, s }, node);
     }
 
     draw::DrawCtx& draw() {

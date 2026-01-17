@@ -1,3 +1,4 @@
+#include <agt/ui/widgets/hbox.hpp>
 #include <agt/ui/widgets/rect.hpp>
 #include <agt/ui/ui.hpp>
 #include <agt/wayland/display.hpp>
@@ -28,9 +29,11 @@ int main() {
 
     agt::gl::Renderer gl_renderer(display);
 
-    Rectangle rect = Rectangle { 150, 75 };
-    Node n = rect;
-    UIRoot ui_root(n, { 0.7, 0.6, 0.5 },
+    Node n = HBox {
+        Rectangle { 150, 75, { 0.3, 0.2, 0.3} },
+        Rectangle { 320, 45, { 0.6, 0.7, 0.8} }
+    };
+    UIRoot ui_root(n, { 0.1, 0.4, 0.9 },
                    { wayland_window.current.width, 
                      wayland_window.current.height });
     agt::gl::Window gl_window(gl_renderer, wayland_window, ui_root);

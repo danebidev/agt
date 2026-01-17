@@ -4,12 +4,14 @@
 
 namespace agt::ui {
 
-class Rectangle {
+struct Rectangle {
     size preferred;
+    glm::vec3 color;
 
-public:
-    Rectangle(uint32_t width, uint32_t height) : preferred({ width, height }) {};
-    Rectangle(size s) : preferred(s) {}
+    Rectangle(uint32_t width, uint32_t height, glm::vec3 color_) 
+        : preferred({ width, height }), color(color_) {};
+
+    Rectangle(size s, glm::vec3 color_) : preferred(s), color(color_) {}
 
     size measure(constraints c, Node&) const {
         return preferred;
@@ -19,7 +21,7 @@ public:
     void draw(draw::DrawCtx& ctx, Node& n) const {
         ctx.add_rect({ n.layout_rect.x, n.layout_rect.y }, 
                      { n.layout_rect.w, n.layout_rect.h },
-                     { 0.1, 0.2, 0.3 });
+                       color);
     }
 };
 

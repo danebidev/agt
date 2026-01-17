@@ -17,8 +17,8 @@ DrawCtx::DrawCtx(glm::vec2 size_)
 }
 
 void DrawCtx::finish_frame() const {
-    vertices_changed = false;
-    indices_changed = false;
+    // vertices_changed = false;
+    // indices_changed = false;
 }
 
 void DrawCtx::update_proj(glm::vec2 size_) {

@@ -9,8 +9,11 @@ struct HBox {
     uint32_t spacing = 0;
 
     HBox() = default;
-    HBox(std::vector<Node> c, uint32_t s = 0)
-        : children(std::move(c)), spacing(s) {}
+
+    template<typename... Ts>
+    HBox(Ts&&... args) {
+        (children.emplace_back(std::forward<Ts>(args)), ...);
+    }
 
     size measure(constraints c, Node&) const;
     void layout(rect r, Node&) const;
