@@ -1,3 +1,4 @@
+#include <agt/ui/widgets/rect.hpp>
 #include <agt/ui/ui.hpp>
 #include <agt/wayland/display.hpp>
 #include <agt/wayland/window.hpp>
@@ -27,10 +28,11 @@ int main() {
 
     agt::gl::Renderer gl_renderer(display);
 
-    std::shared_ptr<Rectangle> rect = std::make_shared<Rectangle>(150, 75);
-    UIRoot ui_root(rect, { wayland_window.current.width,
-                           wayland_window.current.height });
-    ui_root.color = { 0.3, 0.4, 0.5 };
+    Rectangle rect = Rectangle { 150, 75 };
+    Node n = rect;
+    UIRoot ui_root(n, { 0.7, 0.6, 0.5 },
+                   { wayland_window.current.width, 
+                     wayland_window.current.height });
     agt::gl::Window gl_window(gl_renderer, wayland_window, ui_root);
 
     wayland_window.frame_loop();

@@ -3,7 +3,6 @@
 #include <agt/gl/shaders.hpp>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/vec3.hpp>
-#include <span>
 #include <vector>
 
 namespace agt::draw {

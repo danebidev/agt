@@ -17,7 +17,8 @@ void Window::frame(uint32_t time_diff) {
     glViewport(0, 0, wl_window.current.width, wl_window.current.height);
 
     glBindVertexArray(vao);
-    const DrawCtx& draw_ctx = ui_root.compute_layout();
+    ui_root.compute_layout();
+    const DrawCtx& draw_ctx = ui_root.draw();
 
     if(draw_ctx.vertices_changed)
         glBufferData(GL_ARRAY_BUFFER, draw_ctx.vertices.size() * sizeof(Vertex),
