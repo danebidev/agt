@@ -55,6 +55,10 @@ Shader::Shader(std::string_view vertex_shader, std::string_view fragment_shader)
         dwhbll::debug::panic(message);
     }
 
+    int loc = glGetUniformLocation(shader_prog, "tex");
+    if (loc != -1)
+        glUniform1i(loc, 0);
+
     glDeleteShader(vertex);
     glDeleteShader(fragment);
 }
@@ -74,7 +78,7 @@ void Shader::setmat4(const std::string& name, glm::mat4 mat) {
     if(loc != -1) {
         glUniformMatrix4fv(loc, 1, ::gl::GL_FALSE, &mat[0][0]);
         auto err = glGetError();
-        if(err != GL_ZERO) {
+        if(err != GL_NO_ERROR) {
             dwhbll::debug::panic("Failed to set projection matrix for shader: {}",
                                  static_cast<int>(err));
         }
