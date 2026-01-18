@@ -5,15 +5,76 @@
 #include <glbinding/glbinding.h>
 #include <glbinding/gl43/gl.h>
 
+#include <EGL/eglext.h>
+#include <utility>
+
 namespace agt::gl {
 
 using namespace ::gl;
 
 #ifndef NDEBUG
+std::string source_to_str(GLenum source) {
+    switch(source) {
+    case GL_DEBUG_SOURCE_API:
+        return "API";
+    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+        return "WM";
+    case GL_DEBUG_SOURCE_SHADER_COMPILER:
+        return "SHADER_COMP";
+    case GL_DEBUG_SOURCE_THIRD_PARTY:
+        return "THIRD_PARTY";
+    case GL_DEBUG_SOURCE_APPLICATION:
+        return "APP";
+    case GL_DEBUG_SOURCE_OTHER:
+        return "OTHER";
+    }
+    std::unreachable();
+}
+
+std::string type_to_str(GLenum type) {
+    switch(type) {
+    case GL_DEBUG_TYPE_ERROR:
+        return "ERROR";
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+        return "DEPRECATED";
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+        return "UB";
+    case GL_DEBUG_TYPE_PORTABILITY:
+        return "PORTABILITY";
+    case GL_DEBUG_TYPE_PERFORMANCE:
+        return "PERFORMANCE";
+    case GL_DEBUG_TYPE_MARKER:
+        return "MARKER";
+    case GL_DEBUG_TYPE_PUSH_GROUP:
+        return "PUSH_GROUP";
+    case GL_DEBUG_TYPE_POP_GROUP:
+        return "POP_GROUP";
+    case GL_DEBUG_TYPE_OTHER:
+        return "OTHER";
+    }
+    std::unreachable();
+}
+
 void gl_debug(GLenum source, GLenum type, GLuint id, GLenum severity,
-                     GLsizei length, const GLchar* message, const void* userParam) {
-    dwhbll::console::error("GLDEBUG {} {} {}", static_cast<uint>(type),
-                           static_cast<uint>(severity), message);
+              GLsizei length, const GLchar* message, const void* userParam) {
+    switch(severity) {
+    case gl::GLenum::GL_DEBUG_SEVERITY_HIGH:
+        dwhbll::debug::panic("OpenGL ERROR\ntype: {}\nSource: {}\n\n{}", type_to_str(type),
+                             source_to_str(source), message);
+        break;
+    case gl::GLenum::GL_DEBUG_SEVERITY_MEDIUM:
+        dwhbll::console::warn("OpenGL WARNING\ntype: {}\nSource: {}\n\n{}", type_to_str(type),
+                             source_to_str(source), message);
+        break;
+    case gl::GLenum::GL_DEBUG_SEVERITY_LOW:
+        dwhbll::console::debug("OpenGL Debug\ntype: {}\nSource: {}\n\n{}", type_to_str(type),
+                             source_to_str(source), message);
+        break;
+    case gl::GLenum::GL_DEBUG_SEVERITY_NOTIFICATION:
+        dwhbll::console::debug("OpenGL Info\ntype: {}\nSource: {}\n\n{}", type_to_str(type),
+                             source_to_str(source), message);
+        break;
+    }
 }
 #endif
 
@@ -52,10 +113,16 @@ Renderer::Renderer(wayland::Display& display) {
     egl_context = eglCreateContext(egl_display, egl_config, EGL_NO_CONTEXT, ctx_attribs);
 
     glbinding::initialize(eglGetProcAddress, false);
+    make_current(EGL_NO_SURFACE);
 
 #ifndef NDEBUG
-    glDebugMessageCallback(gl_debug, 0);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glDebugMessageCallback(&gl_debug, NULL);
 #endif
+
+    int flags;
+    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+    dwhbll::console::debug("{}", flags & (int)GL_CONTEXT_FLAG_DEBUG_BIT);
 }
 
 Renderer::~Renderer() {
@@ -64,7 +131,6 @@ Renderer::~Renderer() {
 }
 
 void Renderer::make_current(EGLSurface surface) {
-    ASSERT(surface);
     eglMakeCurrent(egl_display, surface, surface, egl_context);
 }
 

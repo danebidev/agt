@@ -55,6 +55,7 @@ Shader::Shader(std::string_view vertex_shader, std::string_view fragment_shader)
         dwhbll::debug::panic(message);
     }
 
+    use();
     int loc = glGetUniformLocation(shader_prog, "tex");
     if (loc != -1)
         glUniform1i(loc, 0);
@@ -76,7 +77,7 @@ void Shader::setmat4(const std::string& name, glm::mat4 mat) {
     int loc = glGetUniformLocation(shader_prog, name.c_str());
     ASSERT(loc != -1);
     if(loc != -1) {
-        glUniformMatrix4fv(loc, 1, ::gl::GL_FALSE, &mat[0][0]);
+        glUniformMatrix4fv(loc, 1, GL_FALSE, &mat[0][0]);
         auto err = glGetError();
         if(err != GL_NO_ERROR) {
             dwhbll::debug::panic("Failed to set projection matrix for shader: {}",
