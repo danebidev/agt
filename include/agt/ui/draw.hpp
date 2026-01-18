@@ -2,23 +2,46 @@
 
 #include <agt/gl/shaders.hpp>
 #include <glm/ext/matrix_float4x4.hpp>
+#include <glm/fwd.hpp>
 #include <glm/vec3.hpp>
+#include <agt/utils.hpp>
 #include <vector>
 
 namespace agt::draw {
 
 enum class CmdType {
-    TRIANGLES
+    TRIANGLES,
+    TRIANGLES_TEX
 };
 
 struct Vertex {
     glm::vec3 pos;
     glm::vec3 color;
+    glm::vec2 uv;
+    float texWeight;
 };
 
 struct Texture {
+    enum class Status {
+        OK,
+        CREATE,
+        UPDATE,
+        DELETE
+    };
+
     uint32_t id;
-    bool updated;
+    size sz;
+    Status status;
+
+    // RGBA data that must be uploaded
+    std::vector<uint8_t> buf;
+
+    /**
+     * For certain textures (like text glyphs) we have to convert to RGBA from
+     * some other format (like RED), so `buf` will contain the converted buffer
+     * while `src_buf` contains the original unconverted buffer for deduplication
+     */
+    const void* src_buf = nullptr;
 };
 
 struct DrawCmd {
@@ -27,10 +50,9 @@ struct DrawCmd {
     size_t count;
     size_t first_index;
 
-    // Index into DrawCtx::shaders
-    uint16_t shader_program;
     // Index into DrawCtx::textures
-    uint16_t texture;
+    // -1 if a texture shouldn't be used
+    int32_t texture;
 };
 
 /*
@@ -44,10 +66,12 @@ struct DrawCmd {
 struct DrawCtx {
 public:
     glm::vec2 size;
+    glm::mat4 proj;
 
     std::vector<DrawCmd> cmds;
-    std::vector<gl::Shader> shaders;
-    std::vector<Texture> textures;
+    // TODO: maybe instead of having multiple textures
+    //       they should be combined in an atlas?
+    mutable std::vector<Texture> textures;
 
     // The backend should clear the screen with
     // this color at start of every frame
@@ -59,15 +83,17 @@ public:
     mutable bool indices_changed;
     std::vector<uint16_t> indices;
 
+    void init_frame() const;
     void finish_frame() const;
-    void update_proj(glm::vec2 size);
+    void update_size(glm::vec2 size);
 
     DrawCtx(glm::vec2 size);
 
     void set_clear_color(glm::vec3 color);
 
-    void add_triangle(const Vertex& v1, const Vertex& v2, const Vertex& v3);
-    void add_rect(glm::vec2 pos, glm::vec2 size, glm::vec3 color);
+    // If tex == -1, don't use a texture
+    void add_triangle(const Vertex &v1, const Vertex &v2, const Vertex &v3, int32_t tex = -1);
+    void add_rect(glm::vec2 pos, glm::vec2 size, glm::vec3 color, int32_t tex = -1);
 };
 
 } // namespace agt::draw

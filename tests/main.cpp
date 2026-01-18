@@ -1,5 +1,7 @@
+#include <agt/ui/text.hpp>
 #include <agt/ui/widgets/hbox.hpp>
 #include <agt/ui/widgets/rect.hpp>
+#include <agt/ui/widgets/label.hpp>
 #include <agt/ui/ui.hpp>
 #include <agt/wayland/display.hpp>
 #include <agt/wayland/window.hpp>
@@ -28,11 +30,14 @@ int main() {
     wayland_window.close.subscribe([&]() { running = false; });
 
     agt::gl::Renderer gl_renderer(display);
+    TextRendering text;
 
     Node n = HBox {
         Rectangle { 150, 75, { 0.3, 0.2, 0.3} },
-        Rectangle { 320, 45, { 0.6, 0.7, 0.8} }
+        Rectangle { 320, 45, { 0.6, 0.7, 0.8} },
+        Label { text, "The quick brown fox jumps over the lazy dog" }
     };
+
     UIRoot ui_root(n, { 0.1, 0.4, 0.9 },
                    { wayland_window.current.width, 
                      wayland_window.current.height });

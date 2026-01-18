@@ -17,7 +17,7 @@ pkg_check_modules(WAYLAND REQUIRED wayland-client wayland-egl)
 pkg_check_modules(XKB REQUIRED xkbcommon)
 pkg_check_modules(WAYLAND_PROTOCOLS REQUIRED wayland-protocols)
 pkg_check_modules(EGL REQUIRED egl)
-# pkg_check_modules(FREETYPE REQUIRED freetype2)
+pkg_check_modules(FREETYPE REQUIRED freetype2)
 
 # for some reason using pkg_get_variable doesn't work
 execute_process(
@@ -36,7 +36,10 @@ set(AGT_SOURCES
     src/gl/window.cpp
 
     src/ui/draw.cpp
+    src/ui/text.cpp
+
     src/ui/widgets/hbox.cpp
+    src/ui/widgets/label.cpp
 )
 
 set(XMLS
@@ -73,7 +76,7 @@ target_include_directories(agt PUBLIC
     ${XKB_INCLUDE_DIRS}
     ${EGL_INCLUDE_DIRS}
     ${OPENGL_INCLUDE_DIRS}
-    # ${FREETYPE_INCLUDE_DIRS}
+    ${FREETYPE_INCLUDE_DIRS}
 )
 
 target_link_libraries(agt PUBLIC
@@ -84,7 +87,7 @@ target_link_libraries(agt PUBLIC
     ${WAYLAND_LIBRARIES}
     ${XKB_LIBRARIES}
     ${EGL_LIBRARIES}
-    # ${FREETYPE_LIBRARIES}
+    ${FREETYPE_LIBRARIES}
 )
 
 set(AGT_TEST_SOURCES

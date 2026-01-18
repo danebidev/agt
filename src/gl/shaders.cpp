@@ -2,7 +2,7 @@
 
 #include <dwhbll/console/Logging.h>
 #include <dwhbll/console/debug.hpp>
-#include <glbinding/gl/gl.h>
+#include <glbinding/gl43/gl.h>
 
 using namespace gl;
 
@@ -66,6 +66,19 @@ Shader::~Shader() {
 void Shader::use() const {
     ASSERT(shader_prog != 0);
     glUseProgram(shader_prog);
+}
+
+void Shader::setmat4(const std::string& name, glm::mat4 mat) {
+    int loc = glGetUniformLocation(shader_prog, name.c_str());
+    ASSERT(loc != -1);
+    if(loc != -1) {
+        glUniformMatrix4fv(loc, 1, ::gl::GL_FALSE, &mat[0][0]);
+        auto err = glGetError();
+        if(err != GL_ZERO) {
+            dwhbll::debug::panic("Failed to set projection matrix for shader: {}",
+                                 static_cast<int>(err));
+        }
+    }
 }
 
 }

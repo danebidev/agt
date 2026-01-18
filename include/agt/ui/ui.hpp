@@ -5,41 +5,9 @@
 #include <glm/vec2.hpp>
 
 #include <agt/ui/draw.hpp>
+#include <agt/utils.hpp>
 
 namespace agt::ui {
-
-struct size {
-    uint32_t width = 0;
-    uint32_t height = 0;
-
-    friend size operator+(size lhs, const size &rhs) {
-        lhs.width += rhs.width;
-        lhs.height += rhs.height;
-        return lhs;
-    }
-
-    friend size operator-(size lhs, const size &rhs) {
-        lhs.width -= rhs.width;
-        lhs.height -= rhs.height;
-        return lhs;
-    }
-
-    operator glm::vec2() const {
-        return { width, height };
-    }
-};
-
-struct rect {
-    uint32_t x, y;
-    // `z` is for depth testing later during rendering
-    uint32_t z;
-    uint32_t w, h;
-
-    rect() : x(13), y(5), z(0), w(432), h(23) {}
-
-    rect(uint32_t x_, uint32_t y_, uint32_t z_, size s)
-        : x(x_), y(y_), z(z_), w(s.width), h(s.height) {}
-};
 
 struct constraints {
     uint32_t min_w, max_w;
@@ -104,33 +72,29 @@ struct Node {
 struct UIRoot {
     Node& node;
     glm::vec3 bg_color;
-    std::unique_ptr<draw::DrawCtx> draw_ctx;
     size s;
+    draw::DrawCtx draw_ctx;
 
     UIRoot(Node& n, glm::vec3 bg, size s_)
-        : node(n), bg_color(bg), s(s_) {}
+        : node(n), bg_color(bg), s(s_), draw_ctx(s) {}
 
     void compute_layout() {
         node.layout({ 0, 0, 1, s }, node);
     }
 
     draw::DrawCtx& draw() {
-        if(!draw_ctx)
-            draw_ctx = std::make_unique<draw::DrawCtx>(s);
+        draw_ctx.cmds.clear();
+        draw_ctx.indices.clear();
+        draw_ctx.vertices.clear();
+        draw_ctx.clear_color = bg_color;
 
-        draw_ctx->cmds.clear();
-        draw_ctx->indices.clear();
-        draw_ctx->vertices.clear();
-        draw_ctx->clear_color = bg_color;
-
-        node.draw(*draw_ctx, node);
-        return *draw_ctx;
+        node.draw(draw_ctx, node);
+        return draw_ctx;
     }
 
     void set_size(uint32_t width, uint32_t height) {
         s = { width, height };
-        if(draw_ctx)
-            draw_ctx->update_proj(s);
+        draw_ctx.update_size(s);
     }
 };
 

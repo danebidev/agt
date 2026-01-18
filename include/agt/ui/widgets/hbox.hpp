@@ -15,9 +15,9 @@ struct HBox {
         (children.emplace_back(std::forward<Ts>(args)), ...);
     }
 
-    size measure(constraints c, Node&) const;
-    void layout(rect r, Node&) const;
-    void draw(draw::DrawCtx& ctx, Node&) const;
+    size measure(constraints, Node&) const;
+    void layout(rect, Node&) const;
+    void draw(draw::DrawCtx&, Node&) const;
 };
 
 }

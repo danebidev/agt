@@ -3,7 +3,7 @@
 #include <agt/gl/rendering.hpp>
 
 #include <glbinding/glbinding.h>
-#include <glbinding/gl33/gl.h>
+#include <glbinding/gl43/gl.h>
 
 namespace agt::gl {
 
@@ -42,7 +42,7 @@ Renderer::Renderer(wayland::Display& display) {
 
     EGLint ctx_attribs[] = {
         EGL_CONTEXT_MAJOR_VERSION, 4,
-        EGL_CONTEXT_MINOR_VERSION, 6,
+        EGL_CONTEXT_MINOR_VERSION, 3,
         EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
 #ifndef NDEBUG
         EGL_CONTEXT_OPENGL_DEBUG, EGL_TRUE,
@@ -70,6 +70,11 @@ void Renderer::make_current(EGLSurface surface) {
 
 void Renderer::unset_surface() {
     eglMakeCurrent(egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, egl_context);
+}
+
+void Renderer::init_shader() {
+    if(!shader)
+        shader = std::make_unique<Shader>(gl::shapesVertSource, gl::shapesFragSource);
 }
 
 } // namespace agt::gl

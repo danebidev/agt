@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glbinding/gl/types.h>
+#include <glm/ext/matrix_float4x4.hpp>
 
 namespace agt::gl {
 
@@ -32,6 +33,10 @@ public:
 
     ::gl::GLuint get() const { return shader_prog; }
     void use() const;
+
+    // Shader::use should be called before this
+    void setmat4(const std::string& name, glm::mat4 mat);
+    // TODO: other types
 };
 
 #pragma clang diagnostic push
