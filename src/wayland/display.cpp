@@ -35,6 +35,7 @@ const wl_registry_listener wl_registry_list = {
 
 Display::Display() 
     : wl_display(nullptr, &wl_display_disconnect),
+      wl_registry(nullptr, &wl_registry_destroy),
       xdg_wm_base(nullptr, &xdg_wm_base_destroy),
       wl_compositor(nullptr, &wl_compositor_destroy) {
     trace("connecting to display");
@@ -43,25 +44,25 @@ Display::Display()
         dwhbll::debug::panic("wayland: failed to connect to display");
 
     trace("getting registry");
-    wl_registry = wl_display_get_registry(wl_display.get());
+    wl_registry.reset(wl_display_get_registry(wl_display.get()));
     if(!wl_registry)
         dwhbll::debug::panic("wayland: failed to create registry");
 
     global_event.subscribe([&](std::string interface, uint32_t name) { 
         if(interface == wl_compositor_interface.name) {
             trace("binding wl_compositor (version 5)");
-            wl_compositor.reset((struct wl_compositor*) wl_registry_bind(wl_registry, name,
-                                                                     &wl_compositor_interface, 5));
+            wl_compositor.reset((struct wl_compositor*) wl_registry_bind(wl_registry.get(), name,
+                                                                  &wl_compositor_interface, 5));
         }
         else if(interface == xdg_wm_base_interface.name) {
             trace("binding xdg_wm_base (version 6)");
-            xdg_wm_base.reset((struct xdg_wm_base*) wl_registry_bind(wl_registry, name,
+            xdg_wm_base.reset((struct xdg_wm_base*) wl_registry_bind(wl_registry.get(), name,
                                                                      &xdg_wm_base_interface, 6));
             xdg_wm_base_add_listener(xdg_wm_base.get(), &xdg_wm_base_list, nullptr);
         }
     });
 
-    wl_registry_add_listener(wl_registry, &wl_registry_list, this);
+    wl_registry_add_listener(wl_registry.get(), &wl_registry_list, this);
 }
 
 void Display::roundtrip() {

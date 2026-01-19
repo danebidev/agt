@@ -160,7 +160,7 @@ Window::~Window() {
     ::gl::glDeleteBuffers(1, &vbo);
     ::gl::glDeleteVertexArrays(1, &vao);
 
-    renderer.unset_surface();
+    renderer.make_current(EGL_NO_SURFACE);
     eglDestroySurface(renderer.display(), egl_surface);
     wl_egl_window_destroy(egl_window);
 }

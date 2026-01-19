@@ -122,16 +122,15 @@ Renderer::Renderer(wayland::Display& display) {
 }
 
 Renderer::~Renderer() {
+    glUseProgram(0);
+    shader.reset();
+    eglMakeCurrent(egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     eglDestroyContext(egl_display, egl_context);
     eglTerminate(egl_display);
 }
 
 void Renderer::make_current(EGLSurface surface) {
     eglMakeCurrent(egl_display, surface, surface, egl_context);
-}
-
-void Renderer::unset_surface() {
-    eglMakeCurrent(egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, egl_context);
 }
 
 void Renderer::init_shader() {

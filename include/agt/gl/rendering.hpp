@@ -23,7 +23,6 @@ public:
     ~Renderer();
 
     void make_current(EGLSurface surface);
-    void unset_surface();
     void init_shader();
 
     EGLDisplay display() { return egl_display; };

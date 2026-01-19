@@ -27,11 +27,14 @@ public:
     std::unique_ptr<::xdg_surface, decltype(&xdg_surface_destroy)> xdg_surface;
     std::unique_ptr<::xdg_toplevel, decltype(&xdg_toplevel_destroy)> xdg_toplevel;
 
+    wl_callback* frame_cb = nullptr;
+
     utils::Signal<> close;
     utils::Signal<uint32_t> frame;
     utils::Signal<uint32_t, uint32_t> resize;
 
     Window(Display& display, uint32_t width, uint32_t height);
+    ~Window();
 
     void surface_commit();
     void frame_loop();

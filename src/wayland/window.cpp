@@ -21,10 +21,11 @@ void wl_surface_frame(void* data, wl_callback* cb, uint32_t time) {
     // trace("wl_surface_frame");
 
     Window* window = static_cast<Window*>(data);
-    wl_callback_destroy(cb);
+    ASSERT(cb == window->frame_cb);
+    wl_callback_destroy(window->frame_cb);
 
-    cb = wl_surface_frame(window->wl_surface.get());
-    wl_callback_add_listener(cb, &wl_surface_frame_list, window);
+    window->frame_cb = wl_surface_frame(window->wl_surface.get());
+    wl_callback_add_listener(window->frame_cb, &wl_surface_frame_list, window);
 
     window->frame(time);
 }
@@ -102,6 +103,11 @@ Window::Window(Display& display, uint32_t width, uint32_t height)
     surface_commit();
 }
 
+Window::~Window() {
+    if(frame_cb)
+        wl_callback_destroy(frame_cb);
+}
+
 void Window::surface_commit() {
     wl_surface_commit(wl_surface.get());
 }
@@ -109,8 +115,8 @@ void Window::surface_commit() {
 void Window::frame_loop() {
     frame(0);
 
-    wl_callback* cb = wl_surface_frame(wl_surface.get());
-    wl_callback_add_listener(cb, &wl_surface_frame_list, this);
+    frame_cb = wl_surface_frame(wl_surface.get());
+    wl_callback_add_listener(frame_cb, &wl_surface_frame_list, this);
 }
 
 } // namespace agt::wayland

@@ -16,7 +16,7 @@ class Display {
 
 private:
     std::unique_ptr<::wl_display, decltype(&wl_display_disconnect)> wl_display;
-    ::wl_registry* wl_registry;
+    std::unique_ptr<::wl_registry, decltype(&wl_registry_destroy)> wl_registry;
 
     // Globals
     std::unique_ptr<::wl_compositor, decltype(&wl_compositor_destroy)> wl_compositor;
@@ -31,7 +31,7 @@ public:
     void dispatch_events();
 
     struct wl_display* display() { return wl_display.get(); };
-    struct wl_registry* registry() { return wl_registry; };
+    struct wl_registry* registry() { return wl_registry.get(); };
 
     struct wl_compositor* compositor() { return wl_compositor.get(); };
     struct xdg_wm_base* wm_base() { return xdg_wm_base.get(); };
