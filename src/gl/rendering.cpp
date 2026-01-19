@@ -119,10 +119,6 @@ Renderer::Renderer(wayland::Display& display) {
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glDebugMessageCallback(&gl_debug, NULL);
 #endif
-
-    int flags;
-    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-    dwhbll::console::debug("{}", flags & (int)GL_CONTEXT_FLAG_DEBUG_BIT);
 }
 
 Renderer::~Renderer() {
