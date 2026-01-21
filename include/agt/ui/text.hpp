@@ -1,14 +1,12 @@
 #pragma once
 
+#include <agt/ui/ui.hpp>
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#include <glm/ext/vector_int2.hpp>
 #include <map>
 #include <filesystem>
-#include <dwhbll/console/debug.hpp>
-
-#include <agt/ui/ui.hpp>
 
 namespace agt::ui {
 
@@ -21,7 +19,7 @@ struct Character {
     uint32_t advance;
     uint32_t min_y, max_y;
 
-    Character(FT_Face& face, unsigned char c);
+    Character(FT_Face& face, int c);
 };
 
 struct TextRendering {
@@ -29,7 +27,7 @@ private:
     FT_Library ft;
     FT_Face face = nullptr;
 
-    std::map<wchar_t, Character> characters;
+    std::map<int, Character> characters;
 
 public:
     // TODO: load from fontconfig
@@ -44,8 +42,8 @@ public:
 
     void load_font();
 
-    Character& get_char(wchar_t c);
-    int32_t get_glyph_texture(draw::DrawCtx& ctx, wchar_t c);
+    Character& get_char(int c);
+    int32_t get_glyph_texture(draw::DrawCtx& ctx, int c);
 };
 
 }

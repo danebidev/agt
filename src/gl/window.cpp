@@ -2,14 +2,13 @@
 
 #include <dwhbll/console/debug.hpp>
 #include <dwhbll/console/Logging.h>
-
 #include <glbinding/gl43/gl.h>
 
-namespace agt::gl {
-
+using namespace agt::draw;
 using namespace dwhbll::console;
-using namespace ::gl;
-using namespace draw;
+using namespace gl;
+
+namespace agt::gl {
 
 void update_texture(Texture& tex) {
     ASSERT(tex.status != Texture::Status::OK);

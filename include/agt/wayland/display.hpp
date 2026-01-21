@@ -1,12 +1,12 @@
 #pragma once
 
-#include <memory>
-#include <string>
+#include <agt/event.hpp>
+
 #include <wayland-client-protocol.h>
 #include <xdg-shell-client-protocol.h>
 #include <cursor-shape-v1-client-protocol.h>
 
-#include "../event.hpp"
+#include <memory>
 
 namespace agt::wayland {
 

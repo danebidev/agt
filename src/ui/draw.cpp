@@ -1,10 +1,10 @@
 #include <agt/ui/draw.hpp>
-#include <dwhbll/console/debug.hpp>
 
 #include <glm/matrix.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glbinding/gl43/gl.h>
+#include <dwhbll/console/debug.hpp>
 
 namespace agt::draw {
 

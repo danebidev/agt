@@ -1,11 +1,11 @@
 #pragma once
 
+#include <agt/event.hpp>
+#include <agt/wayland/display.hpp>
+
 #include <memory>
 #include <wayland-client-protocol.h>
 #include <xdg-shell-client-protocol.h>
-
-#include "../event.hpp"
-#include "display.hpp"
 
 namespace agt::wayland {
 

@@ -1,11 +1,9 @@
 #pragma once
 
-#include <cstdint>
-#include <memory>
-#include <glm/vec2.hpp>
-
 #include <agt/ui/draw.hpp>
 #include <agt/utils.hpp>
+
+#include <memory>
 
 namespace agt::ui {
 
@@ -51,6 +49,7 @@ struct Node {
         void* data() override { return &value; }
     };
 
+    // TODO: small buffer optimizations?
     std::unique_ptr<Concept> self;
 
     template <typename T>

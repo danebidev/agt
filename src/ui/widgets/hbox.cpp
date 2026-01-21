@@ -1,4 +1,3 @@
-#include "dwhbll/console/Logging.h"
 #include <agt/ui/ui.hpp>
 #include <agt/ui/widgets/hbox.hpp>
 

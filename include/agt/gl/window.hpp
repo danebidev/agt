@@ -1,12 +1,12 @@
 #pragma once
 
-#include "agt/ui/ui.hpp"
-#include <wayland-egl-core.h>
-#include <EGL/egl.h>
-
-#include <agt/ui/draw.hpp>
-#include <agt/wayland/window.hpp>
 #include <agt/gl/rendering.hpp>
+#include <agt/ui/ui.hpp>
+#include <agt/wayland/window.hpp>
+
+#include <EGL/egl.h>
+#include <wayland-egl-core.h>
+#include <glbinding/gl43/gl.h>
 
 namespace agt::gl {
 

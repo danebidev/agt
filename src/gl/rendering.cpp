@@ -1,16 +1,14 @@
-#include <dwhbll/console/debug.hpp>
-#include <dwhbll/console/Logging.h>
 #include <agt/gl/rendering.hpp>
 
+#include <dwhbll/console/debug.hpp>
+#include <dwhbll/console/Logging.h>
 #include <glbinding/glbinding.h>
-#include <glbinding/gl43/gl.h>
 
-#include <EGL/eglext.h>
 #include <utility>
 
-namespace agt::gl {
-
 using namespace ::gl;
+
+namespace agt::gl {
 
 #ifndef NDEBUG
 std::string source_to_str(GLenum source) {
@@ -28,6 +26,7 @@ std::string source_to_str(GLenum source) {
     case GL_DEBUG_SOURCE_OTHER:
         return "OTHER";
     }
+
     std::unreachable();
 }
 
@@ -52,25 +51,26 @@ std::string type_to_str(GLenum type) {
     case GL_DEBUG_TYPE_OTHER:
         return "OTHER";
     }
+
     std::unreachable();
 }
 
 void gl_debug(GLenum source, GLenum type, GLuint id, GLenum severity,
               GLsizei length, const GLchar* message, const void* userParam) {
     switch(severity) {
-    case gl::GLenum::GL_DEBUG_SEVERITY_HIGH:
+    case GLenum::GL_DEBUG_SEVERITY_HIGH:
         dwhbll::debug::panic("OpenGL ERROR\ntype: {}\nSource: {}\n\n{}", type_to_str(type),
                              source_to_str(source), message);
         break;
-    case gl::GLenum::GL_DEBUG_SEVERITY_MEDIUM:
+    case GLenum::GL_DEBUG_SEVERITY_MEDIUM:
         dwhbll::console::warn("OpenGL WARNING\ntype: {}\nSource: {}\n\n{}", type_to_str(type),
                              source_to_str(source), message);
         break;
-    case gl::GLenum::GL_DEBUG_SEVERITY_LOW:
+    case GLenum::GL_DEBUG_SEVERITY_LOW:
         dwhbll::console::debug("OpenGL Debug\ntype: {}\nSource: {}\n\n{}", type_to_str(type),
                              source_to_str(source), message);
         break;
-    case gl::GLenum::GL_DEBUG_SEVERITY_NOTIFICATION:
+    case GLenum::GL_DEBUG_SEVERITY_NOTIFICATION:
         dwhbll::console::debug("OpenGL Info\ntype: {}\nSource: {}\n\n{}", type_to_str(type),
                              source_to_str(source), message);
         break;

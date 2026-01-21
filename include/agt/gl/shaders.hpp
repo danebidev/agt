@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glbinding/gl/types.h>
+#include <glbinding/gl43/gl.h>
 #include <glm/ext/matrix_float4x4.hpp>
 
 namespace agt::gl {

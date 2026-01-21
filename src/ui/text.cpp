@@ -2,15 +2,17 @@
 
 #include <glm/vec2.hpp>
 #include <glbinding/gl43/gl.h>
+#include <dwhbll/console/debug.hpp>
 
 using namespace ::gl;
 
 namespace agt::ui {
 
-Character::Character(FT_Face& face, unsigned char c) {
+Character::Character(FT_Face& face, int c) {
     FT_Error error = FT_Load_Char(face, c, FT_LOAD_RENDER);
     if(error)
-        dwhbll::debug::panic("Failed to load character '{}' while loading font: {:X}", c, error);
+        dwhbll::debug::panic("Failed to load character '{}' while loading font: {:X}",
+                             static_cast<char>(c), error); // hacky, but good enough
 
     sz = { face->glyph->bitmap.width, face->glyph->bitmap.rows };
     bearing = { static_cast<uint32_t>(face->glyph->bitmap_left),
@@ -53,11 +55,11 @@ void TextRendering::load_font() {
     // Only load the first 128 ascii characters initially.
     // Other characters will be lazy loaded when necessary
     for (unsigned char c = 0; c < 128; c++) {
-        characters.insert(std::pair<wchar_t, Character>(c, Character(face, c)));
+        characters.insert(std::pair<char8_t, Character>(c, Character(face, c)));
     }
 }
 
-Character& TextRendering::get_char(wchar_t c) {
+Character& TextRendering::get_char(int c) {
     auto it = characters.find(c);
     if (it == characters.end()) {
         characters.emplace(c, Character(face, static_cast<uint8_t>(c)));
@@ -66,14 +68,14 @@ Character& TextRendering::get_char(wchar_t c) {
     return it->second;
 }
 
-int32_t TextRendering::get_glyph_texture(draw::DrawCtx& ctx, wchar_t c) {
+int TextRendering::get_glyph_texture(draw::DrawCtx& ctx, int c) {
     Character& ch = get_char(c);
 
-    for (size_t i = 0; i < ctx.textures.size(); ++i) {
+    for (int i = 0; i < ctx.textures.size(); ++i) {
         if (ctx.textures[i].src_buf == ch.pixels.data() && 
             ctx.textures[i].sz.width == ch.sz.width &&
             ctx.textures[i].sz.height == ch.sz.height) {
-            return static_cast<int32_t>(i);
+            return i;
         }
     }
 
@@ -96,7 +98,7 @@ int32_t TextRendering::get_glyph_texture(draw::DrawCtx& ctx, wchar_t c) {
     }
 
     ctx.textures.push_back(std::move(t));
-    return static_cast<int32_t>(ctx.textures.size() - 1);
+    return ctx.textures.size() - 1;
 }
 
 }

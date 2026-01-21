@@ -1,11 +1,7 @@
 #pragma once
 
-#include <agt/gl/shaders.hpp>
-#include <glm/ext/matrix_float4x4.hpp>
-#include <glm/fwd.hpp>
-#include <glm/vec3.hpp>
 #include <agt/utils.hpp>
-#include <vector>
+#include <agt/gl/shaders.hpp>
 
 namespace agt::draw {
 
@@ -52,7 +48,7 @@ struct DrawCmd {
 
     // Index into DrawCtx::textures
     // -1 if a texture shouldn't be used
-    int32_t texture;
+    int texture;
 };
 
 /*

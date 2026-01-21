@@ -1,14 +1,12 @@
 #pragma once
 
+#include <agt/wayland/display.hpp>
+#include <agt/event.hpp>
+
 #include <wayland-client-protocol.h>
 #include <cursor-shape-v1-client-protocol.h>
 #include <cursor-shape-v1-client-protocol.h>
 #include <xkbcommon/xkbcommon.h>
-
-#include "display.hpp"
-#include "../event.hpp"
-
-struct App;
 
 namespace agt::wayland {
 

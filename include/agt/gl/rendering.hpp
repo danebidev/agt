@@ -1,11 +1,11 @@
 #pragma once
 
-#include <EGL/egl.h>
-#include <glbinding/gl43/gl.h>
-#include <glm/glm.hpp>
+#include <agt/gl/shaders.hpp>
+#include <agt/wayland/display.hpp>
 
-#include "../wayland/display.hpp"
-#include "agt/gl/shaders.hpp"
+#include <EGL/egl.h>
+
+#include <memory>
 
 namespace agt::gl {
 

@@ -8,7 +8,6 @@ size Label::measure(constraints, Node&) const {
         auto& character = render.get_char(c);
         width += (character.advance >> 6);
     }
-
     return { width, static_cast<uint32_t>(render.line_height) };
 }
 
@@ -18,7 +17,34 @@ void Label::draw(draw::DrawCtx& ctx, Node& n) const {
     glm::vec2 cur_pos = { static_cast<float>(n.layout_rect.x), 0 };
     float baseline_y = n.layout_rect.y + render.ascent;
 
-    for(const auto c : text) {
+    for(int i = 0; i < text.size(); ++i) {
+        int c = text[i];
+        // TODO: pls nuke, I'm 99% sure this can be done better
+        if(c & (1 << 7)) {
+            c &= ~(1 << 7);
+            int n = 0;
+            if(c & (1 << 6)) {
+                c &= ~(1 << 6);
+                n++;
+            }
+            if(c & (1 << 5)) {
+                c &= ~(1 << 5);
+                n++;
+            }
+            if(c & (1 << 4)) {
+                c &= ~(1 << 4);
+                n++;
+            }
+
+            while(n--) {
+                i++;
+                c <<= 6;
+                char t = text[i];
+                t &= ~(1 << 7);
+                c += t;
+            }
+        }
+
         auto& character = render.get_char(c);
         int32_t index = render.get_glyph_texture(ctx, c);
 
