@@ -1,8 +1,10 @@
 #include <agt/ui/widgets/label.hpp>
 
-namespace agt::ui {
+#include <dwhbll/console/Logging.h>
 
-size Label::measure(constraints, Node&) const {
+namespace agt::widget {
+
+size Label::measure(ui::constraints, ui::Node&) const {
     uint32_t width = 0;
     for(const auto c : text) {
         auto& character = render.get_char(c);
@@ -11,42 +13,47 @@ size Label::measure(constraints, Node&) const {
     return { width, static_cast<uint32_t>(render.line_height) };
 }
 
-void Label::layout(rect, Node&) const {}
+void Label::layout(rect, ui::Node&) const {}
 
-void Label::draw(draw::DrawCtx& ctx, Node& n) const {
+void Label::draw(draw::DrawCtx& ctx, ui::Node& n) const {
     glm::vec2 cur_pos = { static_cast<float>(n.layout_rect.x), 0 };
     float baseline_y = n.layout_rect.y + render.ascent;
 
     for(int i = 0; i < text.size(); ++i) {
-        int c = text[i];
-        // TODO: pls nuke, I'm 99% sure this can be done better
-        if(c & (1 << 7)) {
-            c &= ~(1 << 7);
-            int n = 0;
-            if(c & (1 << 6)) {
-                c &= ~(1 << 6);
-                n++;
-            }
-            if(c & (1 << 5)) {
-                c &= ~(1 << 5);
-                n++;
-            }
-            if(c & (1 << 4)) {
-                c &= ~(1 << 4);
-                n++;
-            }
+        char c = text[i];
+        int codepoint = 0;
+        int extraBytes = 0;
 
-            while(n--) {
-                i++;
-                c <<= 6;
-                char t = text[i];
-                t &= ~(1 << 7);
-                c += t;
-            }
+        if ((c & 0b10000000) == 0) {
+            codepoint = c;
+        } 
+        else if ((c & 0b11100000) == 0b11000000) {
+            codepoint = c & 0b00011111;
+            extraBytes = 1;
+        } 
+        else if ((c & 0b11110000) == 0b11100000) {
+            codepoint = c & 0b00001111;
+            extraBytes = 2;
+        } 
+        else if ((c & 0b11111000) == 0b11110000) {
+            codepoint = c & 0b00000111;
+            extraBytes = 3;
+        } 
+        else {
+            dwhbll::console::warn("Invalid utf-8 character - skipping");
+            continue;
         }
 
-        auto& character = render.get_char(c);
-        int32_t index = render.get_glyph_texture(ctx, c);
+        for (int j = 0; j < extraBytes; ++j) {
+            ++i;
+            if (i >= text.size()) break;
+
+            char t = text[i];
+            codepoint = (codepoint << 6) | (t & 0b00111111);
+        }
+
+        auto& character = render.get_char(codepoint);
+        int32_t index = render.get_glyph_texture(ctx, codepoint);
 
         float top = baseline_y - character.bearing.height;
 

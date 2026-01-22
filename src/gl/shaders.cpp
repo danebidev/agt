@@ -76,13 +76,11 @@ void Shader::use() const {
 void Shader::setmat4(const std::string& name, glm::mat4 mat) {
     int loc = glGetUniformLocation(shader_prog, name.c_str());
     ASSERT(loc != -1);
-    if(loc != -1) {
-        glUniformMatrix4fv(loc, 1, GL_FALSE, &mat[0][0]);
-        auto err = glGetError();
-        if(err != GL_NO_ERROR) {
-            dwhbll::debug::panic("Failed to set projection matrix for shader: {}",
-                                 static_cast<int>(err));
-        }
+    glUniformMatrix4fv(loc, 1, GL_FALSE, &mat[0][0]);
+    auto err = glGetError();
+    if(err != GL_NO_ERROR) {
+        dwhbll::debug::panic("Failed to set projection matrix for shader: {}",
+                             static_cast<int>(err));
     }
 }
 

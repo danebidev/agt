@@ -1,4 +1,5 @@
 #include <agt/gl/rendering.hpp>
+#include <agt/ui/draw.hpp>
 
 #include <dwhbll/console/debug.hpp>
 #include <dwhbll/console/Logging.h>
@@ -119,6 +120,8 @@ Renderer::Renderer(wayland::Display& display) {
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glDebugMessageCallback(&gl_debug, NULL);
 #endif
+
+    shader = std::make_unique<Shader>(gl::shapesVertSource, gl::shapesFragSource);
 }
 
 Renderer::~Renderer() {
@@ -131,11 +134,6 @@ Renderer::~Renderer() {
 
 void Renderer::make_current(EGLSurface surface) {
     eglMakeCurrent(egl_display, surface, surface, egl_context);
-}
-
-void Renderer::init_shader() {
-    if(!shader)
-        shader = std::make_unique<Shader>(gl::shapesVertSource, gl::shapesFragSource);
 }
 
 } // namespace agt::gl

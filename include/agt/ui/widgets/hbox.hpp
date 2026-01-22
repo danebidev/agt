@@ -2,10 +2,10 @@
 
 #include <agt/ui/ui.hpp>
 
-namespace agt::ui {
+namespace agt::widget {
 
 struct HBox {
-    std::vector<Node> children;
+    std::vector<ui::Node> children;
     uint32_t spacing = 0;
 
     HBox() = default;
@@ -15,9 +15,9 @@ struct HBox {
         (children.emplace_back(std::forward<Ts>(args)), ...);
     }
 
-    size measure(constraints, Node&) const;
-    void layout(rect, Node&) const;
-    void draw(draw::DrawCtx&, Node&) const;
+    size measure(ui::constraints, ui::Node&) const;
+    void layout(rect, ui::Node&) const;
+    void draw(draw::DrawCtx&, ui::Node&) const;
 };
 
 }

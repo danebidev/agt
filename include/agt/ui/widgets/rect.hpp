@@ -2,7 +2,7 @@
 
 #include "agt/ui/ui.hpp"
 
-namespace agt::ui {
+namespace agt::widget {
 
 struct Rectangle {
     size preferred;
@@ -13,12 +13,12 @@ struct Rectangle {
 
     Rectangle(size s, glm::vec3 color_) : preferred(s), color(color_) {}
 
-    size measure(constraints c, Node&) const {
+    size measure(ui::constraints c, ui::Node&) const {
         return preferred;
     }
-    void layout(rect r, Node& n) const {}
+    void layout(rect r, ui::Node& n) const {}
 
-    void draw(draw::DrawCtx& ctx, Node& n) const {
+    void draw(draw::DrawCtx& ctx, ui::Node& n) const {
         ctx.add_rect({ n.layout_rect.x, n.layout_rect.y }, 
                      { n.layout_rect.w, n.layout_rect.h },
                        color);

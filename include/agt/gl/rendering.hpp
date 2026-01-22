@@ -16,14 +16,13 @@ private:
     EGLContext egl_context;
 
 public:
-    // TODO: this is an hack, move this out of here
+    // TODO: might want to move this somewhere else?
     std::unique_ptr<Shader> shader;
 
     Renderer(wayland::Display& display);
     ~Renderer();
 
     void make_current(EGLSurface surface);
-    void init_shader();
 
     EGLDisplay display() { return egl_display; };
     EGLConfig config() { return egl_config; };

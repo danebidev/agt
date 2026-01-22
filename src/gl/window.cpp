@@ -119,7 +119,6 @@ Window::Window(Renderer& rendering_, wayland::Window& window_, ui::UIRoot& ui_ro
     });
 
     make_current();
-    renderer.init_shader();
     renderer.shader->use();
     eglSwapInterval(renderer.display(), 0);
 
@@ -132,19 +131,18 @@ Window::Window(Renderer& rendering_, wayland::Window& window_, ui::UIRoot& ui_ro
 
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(draw::Vertex), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(draw::Vertex),
                           (void*) sizeof(glm::vec3));
     glEnableVertexAttribArray(1);
 
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(draw::Vertex),
                           (void*) (2*sizeof(glm::vec3)));
     glEnableVertexAttribArray(2);
 
-    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(draw::Vertex),
                           (void*) (2*sizeof(glm::vec3) + sizeof(glm::vec2)));
     glEnableVertexAttribArray(3);
 

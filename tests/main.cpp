@@ -16,6 +16,7 @@ using namespace agt;
 using namespace agt::wayland;
 using namespace agt::ui;
 using namespace agt::draw;
+using namespace agt::widget;
 
 int main() {
     dwhbll::console::setLevel(dwhbll::console::Level::TRACE);
