@@ -40,6 +40,7 @@ set(AGT_SOURCES
 
     src/ui/widgets/hbox.cpp
     src/ui/widgets/label.cpp
+    src/ui/widgets/button.cpp
 )
 
 set(XMLS

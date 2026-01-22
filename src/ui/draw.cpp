@@ -67,19 +67,48 @@ void DrawCtx::set_clear_color(glm::vec3 color) {
     clear_color = color;
 }
 
-void DrawCtx::add_triangle(const Vertex &v1, const Vertex &v2, const Vertex &v3, int32_t tex) {
-    std::vector<size_t> n = add_vertices({ v1, v2, v3 });
-
+void DrawCtx::add_line(const Vertex &v1, const Vertex &v2) {
+    std::vector<size_t> n = add_vertices({ v1, v2 });
     indices.insert(indices.end(), n.begin(), n.end());
 
     cmds.push_back(DrawCmd {
+        .type = CmdType::LINE,
+        .count = 2,
+        .first_index = indices.size() - 2,
+        .texture = -1
+    });
+}
+
+void DrawCtx::add_triangle(const Vertex &v1, const Vertex &v2, const Vertex &v3, int32_t tex) {
+    std::vector<size_t> n = add_vertices({ v1, v2, v3 });
+    indices.insert(indices.end(), n.begin(), n.end());
+
+    cmds.push_back(DrawCmd {
+        .type = CmdType::TRIANGLE,
         .count = 3,
         .first_index = indices.size() - 3,
         .texture = tex
     });
 }
 
-void DrawCtx::add_rect(glm::vec2 pos, glm::vec2 size, glm::vec3 color, int32_t tex) {
+void DrawCtx::add_rect(glm::vec2 pos, glm::vec2 size, glm::vec3 color) {
+    glm::vec2 p0 = pos;
+    glm::vec2 p1 = pos + glm::vec2(size.x, 0);
+    glm::vec2 p2 = pos + size;
+    glm::vec2 p3 = pos + glm::vec2(0, size.y);
+
+    Vertex v0 { { p0.x, p0.y, 0.0f }, color, { 0, 0 }, 0.0f };
+    Vertex v1 { { p1.x, p1.y, 0.0f }, color, { 1, 0 }, 0.0f };
+    Vertex v2 { { p2.x, p2.y, 0.0f }, color, { 1, 1 }, 0.0f };
+    Vertex v3 { { p3.x, p3.y, 0.0f }, color, { 0, 1 }, 0.0f };
+
+    add_line(v0, v1);
+    add_line(v1, v2);
+    add_line(v2, v3);
+    add_line(v3, v0);
+}
+
+void DrawCtx::add_rect_fill(glm::vec2 pos, glm::vec2 size, glm::vec3 color, int32_t tex) {
     glm::vec2 p0 = pos;
     glm::vec2 p1 = pos + glm::vec2(size.x, 0);
     glm::vec2 p2 = pos + size;

@@ -13,13 +13,14 @@ struct Rectangle {
 
     Rectangle(size s, glm::vec3 color_) : preferred(s), color(color_) {}
 
-    size measure(ui::constraints c, ui::Node&) const {
+    size measure(ui::constraints, ui::Node&, ui::Data&) {
         return preferred;
     }
-    void layout(rect r, ui::Node& n) const {}
 
-    void draw(draw::DrawCtx& ctx, ui::Node& n) const {
-        ctx.add_rect({ n.layout_rect.x, n.layout_rect.y }, 
+    void layout(rect, ui::Node&, ui::Data) {}
+
+    void draw(ui::Node& n, ui::Data data) {
+        data.draw_ctx.add_rect_fill({ n.layout_rect.x, n.layout_rect.y }, 
                      { n.layout_rect.w, n.layout_rect.h },
                        color);
     }

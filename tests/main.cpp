@@ -1,3 +1,4 @@
+#include <agt/ui/widgets/button.hpp>
 #include <agt/gl/rendering.hpp>
 #include <agt/gl/window.hpp>
 #include <agt/gl/shaders.hpp>
@@ -43,12 +44,13 @@ int main() {
 
     Node n = HBox {
         Rectangle { 150, 75, { 0.3, 0.2, 0.3} },
-        Rectangle { 320, 45, { 0.6, 0.7, 0.8} },
-        Label { text, "The quick brown fox jumps over the lazy dog à°ç" }
+        Button("hello"),
+        Label { "The quick brown fox jumps over the lazy dog à°ç" }
     };
 
-    UIRoot ui_root(n, { 0.1, 0.4, 0.9 }, { wayland_window.current.width, 
-                                           wayland_window.current.height });
+    UIRoot ui_root(n, { 0.1, 0.4, 0.9 },
+                   { wayland_window.current.width, wayland_window.current.height },
+                   text);
     agt::gl::Window gl_window(gl_renderer, wayland_window, ui_root);
 
     wayland_window.frame_loop();

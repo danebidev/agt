@@ -44,7 +44,14 @@ struct Texture {
     const void* src_buf = nullptr;
 };
 
+enum class CmdType {
+    TRIANGLE,
+    LINE
+};
+
 struct DrawCmd {
+    CmdType type;
+
     size_t count;
     size_t first_index;
 
@@ -90,9 +97,12 @@ public:
 
     void set_clear_color(glm::vec3 color);
 
-    // If tex == -1, don't use a texture
+    // For all these methods, if tex == -1 no texture should be used
+    void add_line(const Vertex &v1, const Vertex &v2);
     void add_triangle(const Vertex &v1, const Vertex &v2, const Vertex &v3, int32_t tex = -1);
-    void add_rect(glm::vec2 pos, glm::vec2 size, glm::vec3 color, int32_t tex = -1);
+
+    void add_rect(glm::vec2 pos, glm::vec2 size, glm::vec3 color);
+    void add_rect_fill(glm::vec2 pos, glm::vec2 size, glm::vec3 color, int32_t tex = -1);
 };
 
 } // namespace agt::draw

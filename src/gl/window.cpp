@@ -76,12 +76,20 @@ void Window::frame(uint32_t time_diff) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for(auto cmd : draw_ctx.cmds) {
-        if(cmd.texture != -1) {
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, draw_ctx.textures[cmd.texture].id);
+        switch(cmd.type) {
+        case CmdType::TRIANGLE:
+            if(cmd.texture != -1) {
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, draw_ctx.textures[cmd.texture].id);
+            }
+            glDrawElements(GL_TRIANGLES, cmd.count, GL_UNSIGNED_SHORT,
+                           (void*) (cmd.first_index * sizeof(uint16_t)));
+            break;
+        case CmdType::LINE:
+            glDrawElements(GL_LINES, cmd.count, GL_UNSIGNED_SHORT,
+                           (void*) (cmd.first_index * sizeof(uint16_t)));
+            break;
         }
-        glDrawElements(GL_TRIANGLES, cmd.count, GL_UNSIGNED_SHORT,
-                       (void*) (cmd.first_index * sizeof(uint16_t)));
     }
 
     draw_ctx.finish_frame();
