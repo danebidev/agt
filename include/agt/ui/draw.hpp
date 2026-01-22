@@ -5,16 +5,20 @@
 
 namespace agt::draw {
 
-enum class CmdType {
-    TRIANGLES,
-    TRIANGLES_TEX
-};
-
 struct Vertex {
     glm::vec3 pos;
     glm::vec3 color;
     glm::vec2 uv;
     float texWeight;
+
+    friend bool operator==(const Vertex& lhs, const Vertex& rhs) {
+        return lhs.pos == rhs.pos 
+                && lhs.color == rhs.color 
+                && lhs.uv == rhs.uv
+                && lhs.texWeight == rhs.texWeight;
+    }
+
+    friend bool operator!=(const Vertex& lhs, const Vertex& rhs) { return !(lhs == rhs); }
 };
 
 struct Texture {
@@ -41,8 +45,6 @@ struct Texture {
 };
 
 struct DrawCmd {
-    CmdType type;
-
     size_t count;
     size_t first_index;
 
@@ -60,6 +62,10 @@ struct DrawCmd {
  * used by the specific commands.
  */
 struct DrawCtx {
+private:
+    size_t add_vertex(Vertex& v);
+    std::vector<size_t> add_vertices(const std::vector<Vertex>& v);
+
 public:
     glm::vec2 size;
     glm::mat4 proj;
@@ -73,13 +79,10 @@ public:
     // this color at start of every frame
     glm::vec3 clear_color; 
 
-    mutable bool vertices_changed;
+    mutable bool ctx_changed;
     std::vector<Vertex> vertices;
-
-    mutable bool indices_changed;
     std::vector<uint16_t> indices;
 
-    void init_frame() const;
     void finish_frame() const;
     void update_size(glm::vec2 size);
 

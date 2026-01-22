@@ -10,7 +10,9 @@
 #include <agt/wayland/window.hpp>
 #include <agt/wayland/input.hpp>
 
+#include <csignal>
 #include <dwhbll/console/Logging.h>
+#include <dwhbll/console/debug.hpp>
 
 using namespace agt;
 using namespace agt::wayland;
@@ -18,7 +20,13 @@ using namespace agt::ui;
 using namespace agt::draw;
 using namespace agt::widget;
 
+void s(int sig) {
+    dwhbll::debug::panic("Signal received: {}", sig);
+}
+
 int main() {
+    signal(SIGABRT, s);
+    signal(SIGSEGV, s);
     dwhbll::console::setLevel(dwhbll::console::Level::TRACE);
 
     wayland::Display display;

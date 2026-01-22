@@ -50,14 +50,16 @@ void Window::frame(uint32_t time_diff) {
     glBindVertexArray(vao);
     ui_root.compute_layout();
     const DrawCtx& draw_ctx = ui_root.draw();
+    if(!draw_ctx.ctx_changed)
+        return;
 
     // TODO: use glBufferSubData when possible
-    if(draw_ctx.vertices_changed)
+    if(draw_ctx.ctx_changed) {
         glBufferData(GL_ARRAY_BUFFER, draw_ctx.vertices.size() * sizeof(Vertex),
                      draw_ctx.vertices.data(), GL_DYNAMIC_DRAW);
-    if(draw_ctx.indices_changed)
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, draw_ctx.indices.size() * sizeof(uint16_t),
                      draw_ctx.indices.data(), GL_DYNAMIC_DRAW);
+    }
 
     for(auto& tex : draw_ctx.textures) {
         if(tex.status != Texture::Status::OK)
@@ -74,18 +76,12 @@ void Window::frame(uint32_t time_diff) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for(auto cmd : draw_ctx.cmds) {
-        switch(cmd.type) {
-        case CmdType::TRIANGLES:
-            glDrawElements(GL_TRIANGLES, cmd.count, GL_UNSIGNED_SHORT,
-                           (void*) (cmd.first_index * sizeof(uint16_t)));
-            break;
-        case draw::CmdType::TRIANGLES_TEX:
+        if(cmd.texture != -1) {
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, draw_ctx.textures[cmd.texture].id);
-            glDrawElements(GL_TRIANGLES, cmd.count, GL_UNSIGNED_SHORT,
-                           (void*) (cmd.first_index * sizeof(uint16_t)));
-            break;
         }
+        glDrawElements(GL_TRIANGLES, cmd.count, GL_UNSIGNED_SHORT,
+                       (void*) (cmd.first_index * sizeof(uint16_t)));
     }
 
     draw_ctx.finish_frame();

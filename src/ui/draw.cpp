@@ -8,22 +8,51 @@
 
 namespace agt::draw {
 
-DrawCtx::DrawCtx(glm::vec2 size_)
-    : vertices_changed(true),
-      indices_changed(true)  {
-    update_size(size_);
+// TODO: There should be a better way to do this.
+//       Perhaps keep the list sorted so we can do a binary search?
+size_t DrawCtx::add_vertex(Vertex& v) {
+    for(size_t i = 0; i < vertices.size(); ++i) {
+        if(v == vertices[i])
+            return i;
+    }
+    vertices.push_back(v);
+    return vertices.size() - 1;
 }
 
-void DrawCtx::init_frame() const {
-    // TODO: do various optimizations (deduplicate vertices, etc.)
+std::vector<size_t> DrawCtx::add_vertices(const std::vector<Vertex>& v) {
+    constexpr auto M = std::numeric_limits<size_t>::max();
+    std::vector<size_t> pos(v.size(), M);
+    for(size_t i = 0; i < vertices.size(); ++i) {
+        const auto& vert = vertices[i];
+        for(size_t j = 0; j < v.size(); ++j) {
+            const auto& c = v[j];
+            if(vert == c) {
+                ASSERT(pos[j] == M);
+                pos[j] = i;
+            }
+        }
+    }
+
+    for(size_t i = 0; i < v.size(); ++i) {
+        if(pos[i] == M) {
+            vertices.push_back(v[i]);
+            pos[i] = vertices.size() - 1;
+        }
+    }
+
+    return pos;
+}
+
+DrawCtx::DrawCtx(glm::vec2 size_)
+    : ctx_changed(true) {
+    update_size(size_);
 }
 
 void DrawCtx::finish_frame() const {
     textures.erase(std::remove_if(textures.begin(), textures.end(), [](Texture& tex) {
         return tex.status == Texture::Status::DELETE;
     }), textures.end());
-    // vertices_changed = false;
-    // indices_changed = false;
+    ctx_changed = false;
 }
 
 void DrawCtx::update_size(glm::vec2 size_) {
@@ -31,6 +60,7 @@ void DrawCtx::update_size(glm::vec2 size_) {
         return;
     size = size_;
     proj = glm::ortho(0.0f, size.x, size.y, 0.0f, 0.0f, 100.0f);
+    ctx_changed = true;
 }
 
 void DrawCtx::set_clear_color(glm::vec3 color) {
@@ -38,21 +68,11 @@ void DrawCtx::set_clear_color(glm::vec3 color) {
 }
 
 void DrawCtx::add_triangle(const Vertex &v1, const Vertex &v2, const Vertex &v3, int32_t tex) {
-    vertices_changed = true;
-    indices_changed = true;
+    std::vector<size_t> n = add_vertices({ v1, v2, v3 });
 
-    size_t size = vertices.size();
-
-    vertices.push_back(v1);
-    vertices.push_back(v2);
-    vertices.push_back(v3);
-
-    indices.push_back(size);
-    indices.push_back(size + 1);
-    indices.push_back(size + 2);
+    indices.insert(indices.end(), n.begin(), n.end());
 
     cmds.push_back(DrawCmd {
-        .type = tex == -1 ? CmdType::TRIANGLES : CmdType::TRIANGLES_TEX,
         .count = 3,
         .first_index = indices.size() - 3,
         .texture = tex
