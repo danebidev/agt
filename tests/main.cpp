@@ -29,6 +29,7 @@ int main() {
     signal(SIGABRT, s);
     signal(SIGSEGV, s);
     dwhbll::console::setLevel(dwhbll::console::Level::TRACE);
+    dwhbll::console::setWantColors(true);
 
     wayland::Display display;
     wayland::InputManager input(display);
