@@ -58,8 +58,10 @@ void Window::frame(uint32_t time_diff) {
     glBindVertexArray(vao);
     ui_root.compute_layout();
     const DrawCtx& draw_ctx = ui_root.draw();
-    if(!draw_ctx.ctx_changed)
-        return;
+    TRACE_FUNC("trying to draw ui frame 2");
+    // if(!draw_ctx.ctx_changed)
+    //     return;
+    TRACE_FUNC("drawing ui frame");
 
     // TODO: use glBufferSubData when possible
     glBufferData(GL_ARRAY_BUFFER, draw_ctx.vertices.size() * sizeof(Vertex),

@@ -43,7 +43,6 @@ void Label::draw(ui::Node& n, ui::Data& data) {
             dwhbll::console::warn("Invalid utf-8 character - skipping");
             continue;
         }
-        dwhbll::console::trace("{}", c);
 
         for (int j = 0; j < extraBytes; ++j) {
             ++i;

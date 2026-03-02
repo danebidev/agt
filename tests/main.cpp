@@ -43,7 +43,7 @@ int main() {
 
     Node n = HBox {
         Label("WINE_CANONICAL_HOLE=skip_volatile_check"),
-        Rectangle { 150, 75, { 0.8, 0.3, 0.6} }
+        Rectangle { 150, 75, { 0.8, 0.3, 0.6 } }
     };
 
     UIRoot ui_root(n, { 0.1, 0.4, 0.9 },

@@ -28,6 +28,7 @@ void wl_surface_frame(void* data, wl_callback* cb, uint32_t time) {
     wl_callback_add_listener(window->frame_cb, &wl_surface_frame_list, window);
 
     window->frame(time);
+    wl_surface_commit(window->wl_surface.get());
 }
 
 void xdg_surface_configure(void* data, xdg_surface* surface, uint32_t serial) {

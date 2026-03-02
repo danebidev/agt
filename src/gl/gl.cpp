@@ -94,10 +94,6 @@ PFNEGLDEBUGMESSAGECONTROLKHRPROC eglDebugMessageControlKHR;
 Renderer::Renderer(backend::Backend& backend_, utils::EventLoop& el)
     : backend(backend_), running(false) {
     TRACE_FUNC();
-    egl_display = eglGetDisplay((EGLNativeDisplayType) backend.display());
-    if(egl_display == EGL_NO_DISPLAY)
-        panic("egl: failed to create display");
-
     el.post_poll.subscribe([&](auto unsub) {
         unsub();
         start();
@@ -117,6 +113,10 @@ Renderer::~Renderer() {
 // event loop is started by the user.
 // I have at the very least seen this break the wayland backend.
 void Renderer::start() {
+    egl_display = eglGetDisplay((EGLNativeDisplayType) backend.display());
+    if(egl_display == EGL_NO_DISPLAY)
+        panic("egl: failed to create display");
+
     if(!eglInitialize(egl_display, NULL, NULL))
         panic("egl: failed to initialize");
 
@@ -143,6 +143,7 @@ void Renderer::start() {
         EGL_BLUE_SIZE, 8,
         EGL_ALPHA_SIZE, 8,
         EGL_DEPTH_SIZE, 8,
+        EGL_SURFACE_TYPE, EGL_PBUFFER_BIT | EGL_WINDOW_BIT,
         EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
         EGL_NONE
     };
@@ -160,7 +161,27 @@ void Renderer::start() {
     };
     egl_context = eglCreateContext(egl_display, egl_config, EGL_NO_CONTEXT, ctx_attribs);
 
-    make_current(EGL_NO_SURFACE);
+    // Some drivers (looking at you nvidia) require a surface to be bound
+    // to actually have opengl calls work, and since it's so convenient to
+    // initialize everything here, we create a 1x1 buffer to set as current.
+    EGLint pbuffer_attribs[] = {
+        EGL_WIDTH, 1,
+        EGL_HEIGHT, 1,
+        EGL_NONE,
+    };
+
+    EGLSurface egl_surface = eglCreatePbufferSurface(
+        egl_display,
+        egl_config,
+        pbuffer_attribs
+    );
+
+    if (egl_surface == EGL_NO_SURFACE)
+        panic("egl: failed to create pbuffer surface");
+
+    if (!eglMakeCurrent(egl_display, egl_surface, egl_surface, egl_context))
+        panic("egl: eglMakeCurrent failed");
+
     TRACE_FUNC("loading gl func pointers");
     glbinding::initialize(eglGetProcAddress, false);
 
@@ -173,6 +194,7 @@ void Renderer::start() {
     glDebugMessageCallback(&gl_debug, NULL);
 #endif
 
+    make_current(EGL_NO_SURFACE);
     shader = std::make_unique<Shader>(gl::shapesVertSource, gl::shapesFragSource);
 }
 

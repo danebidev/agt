@@ -31,7 +31,7 @@ private:
 
 public:
     // TODO: load from fontconfig
-    std::filesystem::path cur_font = "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf";
+    std::filesystem::path cur_font = "/usr/share/fonts/noto/NotoSans-Regular.ttf";
 
     int ascent = 0;
     int descent = 0;

@@ -60,7 +60,6 @@ void DrawCtx::finish_frame() const {
 void DrawCtx::update_size(glm::vec2 size_) {
     if(size == size_)
         return;
-    DEBUG_FUNC("{} {}", size_.x, size_.y);
     size = size_;
     proj = glm::ortho(0.0f, size.x, size.y, 0.0f, 0.0f, 100.0f);
     ctx_changed = true;
