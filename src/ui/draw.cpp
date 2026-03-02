@@ -1,10 +1,12 @@
 #include <agt/ui/draw.hpp>
 
+#include <dwhbll/console/debug.hpp>
+#include <dwhbll/console/Logging.h>
+
 #include <glm/matrix.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glbinding/gl43/gl.h>
-#include <dwhbll/console/debug.hpp>
 
 namespace agt::draw {
 
@@ -58,6 +60,7 @@ void DrawCtx::finish_frame() const {
 void DrawCtx::update_size(glm::vec2 size_) {
     if(size == size_)
         return;
+    DEBUG_FUNC("{} {}", size_.x, size_.y);
     size = size_;
     proj = glm::ortho(0.0f, size.x, size.y, 0.0f, 0.0f, 100.0f);
     ctx_changed = true;

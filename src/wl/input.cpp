@@ -1,4 +1,4 @@
-#include <agt/wayland/input.hpp>
+#include <agt/backend/wl-input.hpp>
 
 #include <dwhbll/console/debug.hpp>
 #include <dwhbll/console/Logging.h>
@@ -310,19 +310,19 @@ InputManager::InputManager(Display& display_)
     : display(display_), 
       seat(nullptr, &wl_seat_release),
       cursor_shape(nullptr, &wp_cursor_shape_manager_v1_destroy) {
-    display.global_event.subscribe([&](std::string interface, uint32_t name) {
+    display.global_event.subscribe([&](auto unsub, std::string interface, uint32_t name) {
         if(interface == wl_seat_interface.name) {
-            trace("binding wl_seat (version 8)");
+            TRACE_FUNC("binding wl_seat (version 8)");
             seat.reset((wl_seat*) wl_registry_bind(display.registry(), name,
                                                    &wl_seat_interface, 8));
             wl_seat_add_listener(seat.get(), &wl_seat_list, this);
         }
         else if(interface == wp_cursor_shape_manager_v1_interface.name) {
-            trace("binding wp_cursor_shape_manager_v1 (version 1)");
+            TRACE_FUNC("binding wp_cursor_shape_manager_v1 (version 1)");
             cursor_shape.reset((wp_cursor_shape_manager_v1*) wl_registry_bind(display.registry(), name,
                                                                 &wp_cursor_shape_manager_v1_interface, 1));
         }
     });
 }
 
-} // namespace agt::wayland
+} // namespace agt::wl

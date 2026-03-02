@@ -14,9 +14,9 @@ struct Character {
     std::vector<uint8_t> pixels;
 
     size sz;
-    size bearing;
+    glm::ivec2 bearing;
     // in 1/64th pixels
-    uint32_t advance;
+    long advance;
     uint32_t min_y, max_y;
 
     Character(FT_Face& face, int c);
@@ -31,7 +31,7 @@ private:
 
 public:
     // TODO: load from fontconfig
-    std::filesystem::path cur_font = "/usr/share/fonts/truetype/noto/NotoSerif-Light.ttf";
+    std::filesystem::path cur_font = "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf";
 
     int ascent = 0;
     int descent = 0;

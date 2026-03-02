@@ -1,14 +1,13 @@
 #pragma once
 
-#include <agt/wayland/display.hpp>
-#include <agt/event.hpp>
+#include <agt/backend/wl.hpp>
 
 #include <wayland-client-protocol.h>
 #include <cursor-shape-v1-client-protocol.h>
 #include <cursor-shape-v1-client-protocol.h>
 #include <xkbcommon/xkbcommon.h>
 
-namespace agt::wayland {
+namespace agt::wl {
 
 enum class PointerMask : uint32_t {
     ENTER = 1 << 0,
@@ -19,7 +18,6 @@ enum class PointerMask : uint32_t {
     AXIS_SOURCE = 1 << 5,
     // AXIS_STOP = 1 << 6,
 };
-
 
 struct PointerState {
     // Bitmask of PointerMask
@@ -47,9 +45,9 @@ struct PointerState {
     }
 };
 
-class InputManager;
+struct InputManager;
 
-class Pointer {
+struct Pointer {
     friend void wl_pointer_enter(void* data, wl_pointer* wl_pointer, uint32_t serial,
                                  wl_surface* surface, wl_fixed_t x, wl_fixed_t y);
     friend void wl_pointer_leave(void* data, wl_pointer* wl_pointer, uint32_t serial,
@@ -76,7 +74,7 @@ public:
     Pointer(InputManager& input, wl_pointer* pointer);
 };
 
-class Keyboard {
+struct Keyboard {
     friend void wl_keyboard_keymap(void* data, wl_keyboard* wl_keyboard, uint32_t format,
                                    int fd, uint32_t size);
     friend void wl_keyboard_enter(void* data, wl_keyboard* keyboard, uint32_t serial,
@@ -98,13 +96,13 @@ public:
     Keyboard(InputManager& input, wl_keyboard* keyboard);
 };
 
-class InputManager {
-    friend class Keyboard;
-    friend class Pointer;
+struct InputManager {
+    friend Keyboard;
+    friend Pointer;
     friend void wl_seat_capabilities(void* data, wl_seat* seat, uint32_t cap);
 
 private:
-    Display& display;
+    Backend& backend;
     std::unique_ptr<wl_seat, decltype(&wl_seat_release)> seat;
     std::unique_ptr<Pointer> pointer;
     std::unique_ptr<Keyboard> keyboard;
@@ -123,7 +121,7 @@ public:
     utils::Signal<uint32_t, wl_surface*> kb_leave;
     utils::Signal<uint32_t, uint32_t, uint32_t, uint32_t> kb_key;
 
-    InputManager(Display& display);
+    InputManager(Backend& display);
 };
 
-} // namespace agt::wayland
+} // namespace agt::wl

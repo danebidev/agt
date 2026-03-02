@@ -27,14 +27,17 @@ execute_process(
 )
 
 set(AGT_SOURCES
-    src/wayland/display.cpp
-    src/wayland/window.cpp
-    src/wayland/input.cpp
+    src/event.cpp
 
-    src/gl/rendering.cpp
+    src/wl/wl.cpp
+    src/wl/window.cpp
+    # src/wl/input.cpp
+
+    src/gl/gl.cpp
     src/gl/shaders.cpp
     src/gl/window.cpp
 
+    src/ui/ui.cpp
     src/ui/draw.cpp
     src/ui/text.cpp
 

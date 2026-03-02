@@ -1,22 +1,20 @@
+#include <agt/backend/wl.hpp>
+// #include <agt/backend/wl-input.hpp>
 #include <agt/ui/widgets/button.hpp>
-#include <agt/gl/rendering.hpp>
-#include <agt/gl/window.hpp>
+#include <agt/gl/gl.hpp>
 #include <agt/gl/shaders.hpp>
 #include <agt/ui/text.hpp>
 #include <agt/ui/widgets/hbox.hpp>
 #include <agt/ui/widgets/rect.hpp>
 #include <agt/ui/widgets/label.hpp>
 #include <agt/ui/ui.hpp>
-#include <agt/wayland/display.hpp>
-#include <agt/wayland/window.hpp>
-#include <agt/wayland/input.hpp>
 
 #include <csignal>
 #include <dwhbll/console/Logging.h>
 #include <dwhbll/console/debug.hpp>
 
 using namespace agt;
-using namespace agt::wayland;
+using namespace agt::wl;
 using namespace agt::ui;
 using namespace agt::draw;
 using namespace agt::widget;
@@ -31,31 +29,26 @@ int main() {
     dwhbll::console::setLevel(dwhbll::console::Level::TRACE);
     dwhbll::console::setWantColors(true);
 
-    wayland::Display display;
-    wayland::InputManager input(display);
-    display.roundtrip();
+    utils::EventLoop el;
+    wl::Backend backend;
+    backend.bind_event_loop(el);
 
-    wayland::Window wayland_window(display, 1080, 720);
+    wl::Window window(backend, 1080, 720);
+    window.bind_event_loop(el);
 
-    bool running = true;
-    wayland_window.close.subscribe([&]() { running = false; });
+    window.close.subscribe([&](auto unsub) { el.stop(); });
 
-    agt::gl::Renderer gl_renderer(display);
+    agt::gl::Renderer gl_renderer(backend, el);
     TextRendering text;
 
     Node n = HBox {
-        Rectangle { 150, 75, { 0.3, 0.2, 0.3} },
-        Button("hello"),
-        Label { "The quick brown fox jumps over the lazy dog à°ç" }
+        Label("WINE_CANONICAL_HOLE=skip_volatile_check"),
+        Rectangle { 150, 75, { 0.8, 0.3, 0.6} }
     };
 
     UIRoot ui_root(n, { 0.1, 0.4, 0.9 },
-                   { wayland_window.current.width, wayland_window.current.height },
-                   text);
-    agt::gl::Window gl_window(gl_renderer, wayland_window, ui_root);
+                   { window.state.width, window.state.height }, text);
+    agt::gl::Window gl_window(gl_renderer, window, ui_root);
 
-    wayland_window.frame_loop();
-    while(running) {
-        display.dispatch_events();
-    }
+    el.start();
 }

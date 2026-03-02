@@ -15,8 +15,8 @@ Character::Character(FT_Face& face, int c) {
                              static_cast<char>(c), error); // hacky, but good enough
 
     sz = { face->glyph->bitmap.width, face->glyph->bitmap.rows };
-    bearing = { static_cast<uint32_t>(face->glyph->bitmap_left),
-                static_cast<uint32_t>(face->glyph->bitmap_top) };
+    bearing = { static_cast<int32_t>(face->glyph->bitmap_left),
+                static_cast<int32_t>(face->glyph->bitmap_top) };
     advance = face->glyph->advance.x;
 
     size_t buf_size = sz.width * sz.height;

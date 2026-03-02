@@ -12,7 +12,6 @@ struct constraints {
     uint32_t min_h, max_h;
 };
 
-
 // Data that will get passed to all elements during layout and drawing
 struct Data {
     draw::DrawCtx& draw_ctx;
@@ -89,24 +88,9 @@ struct UIRoot {
           s(s_),
           draw_ctx(s) {}
 
-    void compute_layout() {
-        node.layout({ 0, 0, 1, s }, node, data);
-    }
-
-    draw::DrawCtx& draw() {
-        draw_ctx.cmds.clear();
-        draw_ctx.indices.clear();
-        draw_ctx.vertices.clear();
-        draw_ctx.clear_color = bg_color;
-
-        node.draw(node, data);
-        return draw_ctx;
-    }
-
-    void set_size(uint32_t width, uint32_t height) {
-        s = { width, height };
-        draw_ctx.update_size(s);
-    }
+    void compute_layout();
+    draw::DrawCtx& draw();
+    void set_size(uint32_t width, uint32_t height);
 };
 
 }

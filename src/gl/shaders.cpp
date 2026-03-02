@@ -10,12 +10,14 @@ namespace agt::gl {
 
 void Shader::release() {
     if(shader_prog != 0) {
+        TRACE_FUNC("releasing shader");
         glDeleteProgram(shader_prog);
         shader_prog = 0;
     }
 }
 
 Shader::Shader(std::string_view vertex_shader, std::string_view fragment_shader) {
+    TRACE_FUNC("creating shader");
     GLuint vertex = glCreateShader(GL_VERTEX_SHADER);
     const char* source = vertex_shader.data();
     glShaderSource(vertex, 1, (GLchar**)&source, nullptr);
@@ -59,6 +61,8 @@ Shader::Shader(std::string_view vertex_shader, std::string_view fragment_shader)
     int loc = glGetUniformLocation(shader_prog, "tex");
     if (loc != -1)
         glUniform1i(loc, 0);
+    else
+        dwhbll::debug::panic("Failed to set tex unit");
 
     glDeleteShader(vertex);
     glDeleteShader(fragment);

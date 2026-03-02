@@ -1,13 +1,18 @@
-#include <agt/gl/rendering.hpp>
+#include <agt/gl/gl.hpp>
+
 #include <agt/ui/draw.hpp>
 
 #include <dwhbll/console/debug.hpp>
 #include <dwhbll/console/Logging.h>
 #include <glbinding/glbinding.h>
 
+#include <EGL/eglext.h>
+
 #include <utility>
 
 using namespace ::gl;
+using namespace dwhbll::console;
+using namespace dwhbll::debug;
 
 namespace agt::gl {
 
@@ -60,47 +65,89 @@ void gl_debug(GLenum source, GLenum type, GLuint id, GLenum severity,
               GLsizei length, const GLchar* message, const void* userParam) {
     switch(severity) {
     case GLenum::GL_DEBUG_SEVERITY_HIGH:
-        dwhbll::debug::panic("OpenGL ERROR\ntype: {}\nSource: {}\n\n{}", type_to_str(type),
+        panic("OpenGL ERROR\ntype: {}\nSource: {}\n\n{}", type_to_str(type),
                              source_to_str(source), message);
         break;
     case GLenum::GL_DEBUG_SEVERITY_MEDIUM:
-        dwhbll::console::warn("OpenGL WARNING\ntype: {}\nSource: {}\n\n{}", type_to_str(type),
+        warn("OpenGL WARNING\ntype: {}\nSource: {}\n\n{}", type_to_str(type),
                              source_to_str(source), message);
         break;
     case GLenum::GL_DEBUG_SEVERITY_LOW:
-        dwhbll::console::debug("OpenGL Debug\ntype: {}\nSource: {}\n\n{}", type_to_str(type),
+        debug("OpenGL Debug\ntype: {}\nSource: {}\n\n{}", type_to_str(type),
                              source_to_str(source), message);
         break;
     case GLenum::GL_DEBUG_SEVERITY_NOTIFICATION:
-        dwhbll::console::debug("OpenGL Info\ntype: {}\nSource: {}\n\n{}", type_to_str(type),
+        debug("OpenGL Info\ntype: {}\nSource: {}\n\n{}", type_to_str(type),
                              source_to_str(source), message);
         break;
     }
 }
+
+void egl_debug(EGLenum error,const char *command,EGLint messageType,EGLLabelKHR threadLabel,EGLLabelKHR objectLabel,const char* message) {
+    panic("{:X}: EGL_DEBUG", error);
+    // TODO
+}
+
+PFNEGLDEBUGMESSAGECONTROLKHRPROC eglDebugMessageControlKHR;
 #endif
 
-Renderer::Renderer(wayland::Display& display) {
-    egl_display = eglGetDisplay(display.display());
+Renderer::Renderer(backend::Backend& backend_, utils::EventLoop& el)
+    : backend(backend_), running(false) {
+    TRACE_FUNC();
+    egl_display = eglGetDisplay((EGLNativeDisplayType) backend.display());
     if(egl_display == EGL_NO_DISPLAY)
-        dwhbll::debug::panic("egl: failed to create display");
+        panic("egl: failed to create display");
 
+    el.post_poll.subscribe([&](auto unsub) {
+        unsub();
+        start();
+    });
+}
+
+Renderer::~Renderer() {
+    glUseProgram(0);
+    shader.reset();
+    eglMakeCurrent(egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    eglDestroyContext(egl_display, egl_context);
+    eglTerminate(egl_display);
+}
+
+// We can't do all this stuff in the constructor because mesa's eglInitialize
+// roundtrips the platform backend, sending the wayland events before the
+// event loop is started by the user.
+// I have at the very least seen this break the wayland backend.
+void Renderer::start() {
     if(!eglInitialize(egl_display, NULL, NULL))
-        dwhbll::debug::panic("egl: failed to initialize");
+        panic("egl: failed to initialize");
 
     eglBindAPI(EGL_OPENGL_API);
 
+#ifndef NDEBUG
+    EGLAttrib debug_attribs[] = {
+        EGL_DEBUG_MSG_CRITICAL_KHR, EGL_TRUE,
+        EGL_DEBUG_MSG_ERROR_KHR, EGL_TRUE,
+        EGL_DEBUG_MSG_WARN_KHR, EGL_TRUE,
+        EGL_DEBUG_MSG_INFO_KHR, EGL_TRUE,
+        EGL_NONE
+    };
+    eglDebugMessageControlKHR = (PFNEGLDEBUGMESSAGECONTROLKHRPROC)(eglGetProcAddress("eglDebugMessageControlKHR"));
+    if(eglDebugMessageControlKHR)
+        eglDebugMessageControlKHR(egl_debug, debug_attribs);
+#endif
+
     EGLint num_config;
-    EGLint attribs[] = {
+    EGLint config_attribs[] = {
         EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
         EGL_RED_SIZE, 8,
         EGL_GREEN_SIZE, 8,
         EGL_BLUE_SIZE, 8,
         EGL_ALPHA_SIZE, 8,
+        EGL_DEPTH_SIZE, 8,
         EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
         EGL_NONE
     };
 
-    eglChooseConfig(egl_display, attribs, &egl_config, 1, &num_config);
+    eglChooseConfig(egl_display, config_attribs, &egl_config, 1, &num_config);
 
     EGLint ctx_attribs[] = {
         EGL_CONTEXT_MAJOR_VERSION, 4,
@@ -113,8 +160,13 @@ Renderer::Renderer(wayland::Display& display) {
     };
     egl_context = eglCreateContext(egl_display, egl_config, EGL_NO_CONTEXT, ctx_attribs);
 
-    glbinding::initialize(eglGetProcAddress, false);
     make_current(EGL_NO_SURFACE);
+    TRACE_FUNC("loading gl func pointers");
+    glbinding::initialize(eglGetProcAddress, false);
+
+    ::gl::glEnable(GL_BLEND);
+    ::gl::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    ::gl::glEnable(GL_DEPTH_TEST);
 
 #ifndef NDEBUG
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -122,14 +174,6 @@ Renderer::Renderer(wayland::Display& display) {
 #endif
 
     shader = std::make_unique<Shader>(gl::shapesVertSource, gl::shapesFragSource);
-}
-
-Renderer::~Renderer() {
-    glUseProgram(0);
-    shader.reset();
-    eglMakeCurrent(egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-    eglDestroyContext(egl_display, egl_context);
-    eglTerminate(egl_display);
 }
 
 void Renderer::make_current(EGLSurface surface) {

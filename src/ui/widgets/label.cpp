@@ -43,6 +43,7 @@ void Label::draw(ui::Node& n, ui::Data& data) {
             dwhbll::console::warn("Invalid utf-8 character - skipping");
             continue;
         }
+        dwhbll::console::trace("{}", c);
 
         for (int j = 0; j < extraBytes; ++j) {
             ++i;
@@ -55,9 +56,9 @@ void Label::draw(ui::Node& n, ui::Data& data) {
         auto& character = data.text_render.get_char(codepoint);
         int32_t index = data.text_render.get_glyph_texture(data.draw_ctx, codepoint);
 
-        float top = baseline_y - character.bearing.height;
+        float top = baseline_y - character.bearing.y;
 
-        data.draw_ctx.add_rect_fill({ cur_pos.x + character.bearing.width, top },
+        data.draw_ctx.add_rect_fill({ cur_pos.x + character.bearing.x, top },
                                  character.sz, { 1.0f, 1.0f, 1.0f }, index);
         cur_pos.x += static_cast<float>(character.advance >> 6);
     }
