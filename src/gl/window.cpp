@@ -46,19 +46,17 @@ void update_texture(Texture& tex) {
 }
 
 void Window::frame(uint32_t time_diff) {
-    TRACE_FUNC("trying to draw ui frame");
     if(!init_done)
         return;
 
     make_current();
 
-    ui_root.set_size(backend_window.state.width, backend_window.state.height);
-    glViewport(0, 0, backend_window.state.width, backend_window.state.height);
+    ui_root.set_size(backend_window->state.width, backend_window->state.height);
+    glViewport(0, 0, backend_window->state.width, backend_window->state.height);
 
     glBindVertexArray(vao);
     ui_root.compute_layout();
     const DrawCtx& draw_ctx = ui_root.draw();
-    TRACE_FUNC("trying to draw ui frame 2");
     // if(!draw_ctx.ctx_changed)
     //     return;
     TRACE_FUNC("drawing ui frame");
@@ -106,11 +104,11 @@ void Window::frame(uint32_t time_diff) {
     eglSwapBuffers(renderer.display(), egl_surface);
 }
 
-Window::Window(Renderer& rendering_, backend::Window& window_, ui::UIRoot& ui_root_) 
+Window::Window(Renderer& rendering_, backend::Window* window_, ui::UIRoot& ui_root_) 
     : renderer(rendering_),
       backend_window(window_),
       ui_root(ui_root_) {
-    backend_window.frame.subscribe([&](auto unsub, uint32_t time) {
+    backend_window->frame.subscribe([&](auto unsub, uint32_t time) {
         TRACE_FUNC("window frame");
         uint32_t diff = time;
         // We use time=0 for manually sent redraws (like on resize)
@@ -122,16 +120,16 @@ Window::Window(Renderer& rendering_, backend::Window& window_, ui::UIRoot& ui_ro
         frame(diff);
     });
 
-    backend_window.resize.subscribe([&](auto unsub) {
-        ui_root.set_size(backend_window.state.width, backend_window.state.height);
-        backend_window.frame(0);
+    backend_window->resize.subscribe([&](auto unsub, uint32_t w, uint32_t h) {
+        ui_root.set_size(w, h);
+        backend_window->frame(0);
     });
 
-    backend_window.init_complete.subscribe([&](auto unsub) {
+    backend_window->init_complete.subscribe([&](auto unsub) {
         TRACE_FUNC("window gl init");
         unsub();
         egl_surface = eglCreateWindowSurface(renderer.display(), renderer.config(), 
-                                             (EGLNativeWindowType) backend_window.surface(),
+                                             (EGLNativeWindowType) backend_window->native_surface(),
                                              NULL);
         make_current();
         renderer.shader->use();

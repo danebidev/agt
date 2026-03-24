@@ -1,6 +1,6 @@
 #pragma once
 
-#include "agt/ui/widgets/label.hpp"
+#include <agt/ui/widgets/label.hpp>
 
 namespace agt::widget {
 

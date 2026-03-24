@@ -35,7 +35,7 @@ private:
 class Window {
 private:
     Renderer& renderer;
-    backend::Window& backend_window;
+    backend::Window* backend_window;
     ui::UIRoot& ui_root;
 
     EGLSurface egl_surface = nullptr;
@@ -50,7 +50,7 @@ private:
     void frame(uint32_t diff_time);
 
 public:
-    Window(Renderer& rendering, backend::Window& window, ui::UIRoot& ui_root);
+    Window(Renderer& rendering, backend::Window* window, ui::UIRoot& ui_root);
     ~Window();
 
     void make_current();

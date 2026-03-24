@@ -3,8 +3,6 @@
 #include "agt/event.hpp"
 #include <agt/input/input.hpp>
 
-#include <optional>
-
 namespace agt::backend {
 
 struct WindowState {
@@ -12,27 +10,30 @@ struct WindowState {
 };
 
 struct Window {
-    WindowState state;
+    virtual ~Window() = default;
 
+    WindowState state;
+    
     utils::Signal<> close;
-    /**
-     * @param ms since the last frame
-     */
-    utils::Signal<uint32_t> frame;
-    utils::Signal<> resize;
+    utils::Signal<uint32_t> frame; // ms since last frame
+    utils::Signal<uint32_t, uint32_t> resize; // new width, height
     utils::Signal<> init_complete;
 
-    virtual void* surface() = 0;
+    virtual void* native_surface() = 0;
 };
+
+using WindowPtr = std::unique_ptr<Window>;
 
 struct Backend {
     virtual ~Backend() = default;
 
-    virtual void bind_event_loop(utils::EventLoop& el) = 0;
-    // virtual void push_input(input::InputEvent) = 0;
-    // virtual std::optional<input::InputEvent> pop_input() = 0;
+    virtual void run(utils::EventLoop& el) = 0;
+    virtual void stop() = 0;
 
-    virtual void* display() = 0;
+    virtual void* native_display() = 0;
+
+    virtual WindowPtr create_window(uint32_t width, uint32_t height,
+                                    std::string title = "") = 0;
 };
 
 } // namespace agt::backend

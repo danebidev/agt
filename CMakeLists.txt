@@ -12,6 +12,7 @@ find_package(PkgConfig REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(glm REQUIRED)
 find_package(glbinding REQUIRED)
+find_package(X11 REQUIRED)
 
 pkg_check_modules(WAYLAND REQUIRED wayland-client wayland-egl)
 pkg_check_modules(XKB REQUIRED xkbcommon)
@@ -32,6 +33,8 @@ set(AGT_SOURCES
     src/wl/wl.cpp
     src/wl/window.cpp
     # src/wl/input.cpp
+
+    src/x11/x11.cpp
 
     src/gl/gl.cpp
     src/gl/shaders.cpp
@@ -88,6 +91,7 @@ target_link_libraries(agt PUBLIC
     dwhbll
     OpenGL::OpenGL
     glm::glm
+    X11::X11
     ${WAYLAND_LIBRARIES}
     ${XKB_LIBRARIES}
     ${EGL_LIBRARIES}

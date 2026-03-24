@@ -7,7 +7,6 @@
 #include <xdg-shell-client-protocol.h>
 
 #include <memory>
-#include <queue>
 
 namespace agt::wl {
 
@@ -19,9 +18,9 @@ public:
     // std::optional<input::InputEvent> pop_input() override;
 
     // TODO: think of a better way
-    void bind_event_loop(utils::EventLoop& el) override;
+    void run(utils::EventLoop& el) override;
 
-    void* display() override { return wl_display.get(); };
+    void* native_display() override { return wl_display.get(); };
     struct wl_registry* registry() { return wl_registry.get(); };
     struct wl_compositor* compositor() { return wl_compositor.get(); };
     struct xdg_wm_base* xdg_wm() { return xdg_wm_base.get(); };
@@ -54,7 +53,7 @@ public:
 
     void bind_event_loop(utils::EventLoop& el);
 
-    void* surface() override { return egl_window.get(); };
+    void* native_surface() override { return egl_window.get(); };
 
 private:
     friend void wl_surface_frame(void* data, wl_callback* cb, uint32_t time);

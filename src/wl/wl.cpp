@@ -73,7 +73,7 @@ Backend::Backend()
 //     return {};
 // }
 
-void Backend::bind_event_loop(utils::EventLoop& el) {
+void Backend::run(utils::EventLoop& el) {
     int fd = wl_display_get_fd(wl_display.get());
 
     el.pre_poll.subscribe([&](auto unsub) {

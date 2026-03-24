@@ -113,7 +113,7 @@ Renderer::~Renderer() {
 // event loop is started by the user.
 // I have at the very least seen this break the wayland backend.
 void Renderer::start() {
-    egl_display = eglGetDisplay((EGLNativeDisplayType) backend.display());
+    egl_display = eglGetDisplay((EGLNativeDisplayType) backend.native_display());
     if(egl_display == EGL_NO_DISPLAY)
         panic("egl: failed to create display");
 

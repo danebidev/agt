@@ -22,7 +22,7 @@ struct Vertex {
 };
 
 struct Texture {
-    enum class Status {
+    enum Status {
         OK,
         CREATE,
         UPDATE,

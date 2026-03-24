@@ -1,7 +1,8 @@
-#include <agt/backend/wl.hpp>
+// #include <agt/backend/wl.hpp>
 // #include <agt/backend/wl-input.hpp>
 #include <agt/ui/widgets/button.hpp>
 #include <agt/gl/gl.hpp>
+#include <agt/backend/x11.hpp>
 #include <agt/gl/shaders.hpp>
 #include <agt/ui/text.hpp>
 #include <agt/ui/widgets/hbox.hpp>
@@ -18,6 +19,7 @@ using namespace agt::wl;
 using namespace agt::ui;
 using namespace agt::draw;
 using namespace agt::widget;
+using namespace agt::backend;
 
 void s(int sig) {
     dwhbll::debug::panic("Signal received: {}", sig);
@@ -30,13 +32,11 @@ int main() {
     dwhbll::console::setWantColors(true);
 
     utils::EventLoop el;
-    wl::Backend backend;
-    backend.bind_event_loop(el);
+    x11::Backend backend;
 
-    wl::Window window(backend, 1080, 720);
-    window.bind_event_loop(el);
+    WindowPtr window = backend.create_window(1080, 720, "asdf");
 
-    window.close.subscribe([&](auto unsub) { el.stop(); });
+    window->close.subscribe([&](auto unsub) { el.stop(); });
 
     agt::gl::Renderer gl_renderer(backend, el);
     TextRendering text;
@@ -47,8 +47,8 @@ int main() {
     };
 
     UIRoot ui_root(n, { 0.1, 0.4, 0.9 },
-                   { window.state.width, window.state.height }, text);
-    agt::gl::Window gl_window(gl_renderer, window, ui_root);
+                   { window->state.width, window->state.height }, text);
+    agt::gl::Window gl_window(gl_renderer, window.get(), ui_root);
 
     el.start();
 }

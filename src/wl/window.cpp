@@ -42,7 +42,7 @@ void xdg_surface_configure(void* data, xdg_surface* surface, uint32_t serial) {
         window->state.height = window->pending_state.height;
         wl_egl_window_resize(window->egl_window.get(), window->state.width,
                              window->state.height, 0, 0);
-        window->resize();
+        window->resize(window->state.width, window->state.height);
     }
 
     xdg_surface_ack_configure(window->xdg_surface.get(), serial);
